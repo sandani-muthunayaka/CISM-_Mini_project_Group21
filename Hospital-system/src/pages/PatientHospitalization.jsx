@@ -1,12 +1,14 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import SideBar from '../functions/SideBar';
-import { ArrowLeft, FileText, Building2, Calendar, User } from 'lucide-react';
+import { ArrowLeft, FileText, Building2, Calendar, User, Shield } from 'lucide-react';
+import useRoleAccess from '../utils/useRoleAccess';
 
 
 const PatientHospitalization = () => {
   const { patientId } = useParams();
   const navigate = useNavigate();
+  const { canEdit, userPosition, loading: roleLoading } = useRoleAccess();
   const [records, setRecords] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
@@ -85,8 +87,9 @@ const PatientHospitalization = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Left: Add New Hospitalization Record */}
+        <div className={`grid grid-cols-1 ${canEdit ? 'md:grid-cols-2' : ''} gap-8`}>
+          {/* Left: Add New Hospitalization Record - Only for doctors and nurses */}
+          {canEdit && (
           <div>
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
@@ -164,6 +167,7 @@ const PatientHospitalization = () => {
               </form>
             </div>
           </div>
+          )}
           {/* Right: Hospitalization History */}
           <div>
             <div className="bg-white rounded-lg shadow-md p-6">

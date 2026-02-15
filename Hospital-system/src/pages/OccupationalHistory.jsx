@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Briefcase, MapPin, Calendar, Clock, User, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Briefcase, MapPin, Calendar, Clock, User, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
 import SideBar from '../functions/SideBar';
 import axios from 'axios';
+import useRoleAccess from '../utils/useRoleAccess';
 
 const OccupationalHistory = () => {
+  const { patientId } = useParams();
+  const { canEdit, userPosition, loading: roleLoading } = useRoleAccess();
   const [selectedYear, setSelectedYear] = useState('');
   const [occupation, setOccupation] = useState('');
   const [natureOfWork, setNatureOfWork] = useState('');
@@ -17,8 +20,6 @@ const OccupationalHistory = () => {
   const years = Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - i);
   const ages = Array.from({ length: 80 }, (_, i) => i + 1);
   const durations = ['< 1 year', '1-2 years', '3-5 years', '6-10 years', '11-20 years', '20+ years'];
-
-  const { patientId } = useParams();
 
   // Fetch records from backend on mount
   React.useEffect(() => {
@@ -107,8 +108,9 @@ const OccupationalHistory = () => {
 
         {/* Occupational History Content */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Occupational Records (Left) */}
+          <div className={`grid grid-cols-1 ${canEdit ? 'md:grid-cols-2' : ''} gap-8`}>
+            {/* Occupational Records (Left) - Only for doctors and nurses */}
+            {canEdit && (
             <div>
               <div className="bg-white rounded-lg shadow-md border border-blue-200">
                 <div className="px-8 py-6 border-b-2 border-blue-300 flex items-center gap-2">
@@ -227,6 +229,7 @@ const OccupationalHistory = () => {
                 </form>
               </div>
             </div>
+            )}
             {/* All Occupational Records (Right) */}
             <div>
               <div className="bg-white rounded-lg shadow-md border border-blue-200">

@@ -5,9 +5,12 @@ import { useParams } from "react-router-dom";
 import SideBar from "../functions/SideBar";
 import ImmunizationRecords from "./ImmunizationRecords";
 import PastImmunizationHistory from "./PastImmunizationHistory";
+import { Shield } from "lucide-react";
+import useRoleAccess from '../utils/useRoleAccess';
 
 const ImmunizationPage = () => {
   const { patientId } = useParams();
+  const { canEdit, userPosition, loading: roleLoading } = useRoleAccess();
   const [immunizationRecords, setImmunizationRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -54,8 +57,9 @@ const ImmunizationPage = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Left: Add New Immunization Record */}
+        <div className={`grid grid-cols-1 ${canEdit ? 'md:grid-cols-2' : ''} gap-8`}>
+          {/* Left: Add New Immunization Record - Only for doctors and nurses */}
+          {canEdit && (
           <div>
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Add Immunization Record</h2>
@@ -63,9 +67,11 @@ const ImmunizationPage = () => {
                 patientId={patientId}
                 immunizationRecords={immunizationRecords}
                 setImmunizationRecords={setImmunizationRecords}
+                canEdit={canEdit}
               />
             </div>
           </div>
+          )}
           {/* Right: Display Immunization History */}
           <div>
             <div className="bg-white rounded-lg shadow-md p-6">

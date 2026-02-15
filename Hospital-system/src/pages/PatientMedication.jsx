@@ -1,11 +1,14 @@
 
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import SideBar from '../functions/SideBar';
-import { Calendar, Pill, FileText } from "lucide-react";
+import { Calendar, Pill, FileText, Shield } from "lucide-react";
+import useRoleAccess from '../utils/useRoleAccess';
 
 const PatientMedication = () => {
   const { patientId } = useParams();
+  const navigate = useNavigate();
+  const { canEdit, userPosition, loading: roleLoading } = useRoleAccess();
   const [medications, setMedications] = useState([]);
   const [form, setForm] = useState({
     medication: "",
@@ -77,8 +80,9 @@ const PatientMedication = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Left: Add New Medication */}
+        <div className={`grid grid-cols-1 ${canEdit ? 'md:grid-cols-2' : ''} gap-8`}>
+          {/* Left: Add New Medication - Only for doctors and nurses */}
+          {canEdit && (
           <div>
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
@@ -150,6 +154,7 @@ const PatientMedication = () => {
               </div>
             </div>
           </div>
+          )}
           {/* Right: Medication History */}
           <div>
             <div className="bg-white rounded-lg shadow-md p-6">

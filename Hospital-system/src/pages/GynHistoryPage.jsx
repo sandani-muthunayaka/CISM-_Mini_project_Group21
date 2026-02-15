@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ArrowLeft, FileText, Calendar, User, Baby, AlertCircle, CheckCircle, ChevronRight, HeartPulse } from "lucide-react";
+import { ArrowLeft, FileText, Calendar, User, Baby, AlertCircle, CheckCircle, ChevronRight, HeartPulse, Shield } from "lucide-react";
 import SideBar from "../functions/SideBar";
+import useRoleAccess from '../utils/useRoleAccess';
 
 const GynHistoryPage = () => {
   const symptoms = [
@@ -17,6 +18,7 @@ const GynHistoryPage = () => {
   ];
 
   const { patientId } = useParams();
+  const { canEdit, userPosition, loading: roleLoading } = useRoleAccess();
   const [patient, setPatient] = useState({ name: "", id: patientId, dob: "" });
   const [gynHistory, setGynHistory] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -163,6 +165,8 @@ const GynHistoryPage = () => {
             Gyn History Records
           </h2>
 
+          {canEdit && (
+          <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* LEFT SECTION */}
             <div className="space-y-6 border border-gray-300 p-4 rounded-md shadow">
@@ -342,7 +346,7 @@ const GynHistoryPage = () => {
             </div>
           </div>
 
-          {/* Buttons */}
+          /* Buttons //
           <div className="flex justify-center gap-4 mt-10">
             <button
               className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded text-white hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
@@ -354,6 +358,8 @@ const GynHistoryPage = () => {
             </button>
             {error && <div className="text-red-600 mt-2">{error}</div>}
           </div>
+          </>
+          )}
         </div>
       </div>
     </SideBar>

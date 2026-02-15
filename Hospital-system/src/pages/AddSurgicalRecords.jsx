@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import SideBar from "../functions/SideBar";
-import { Calendar, Stethoscope, FileText, History } from "lucide-react";
+import { Calendar, Stethoscope, FileText, History, Shield } from "lucide-react";
+import useRoleAccess from '../utils/useRoleAccess';
 
 const AddSurgicalRecords = () => {
   const navigate = useNavigate();
   const { patientId } = useParams();
+  const { canEdit, userPosition, loading: roleLoading } = useRoleAccess();
   const today = new Date().toISOString().split("T")[0];
   const [surgery, setSurgery] = useState("");
   const [comment, setComment] = useState("");
@@ -83,8 +85,9 @@ const AddSurgicalRecords = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Left: Add New Surgical Record */}
+        <div className={`grid grid-cols-1 ${canEdit ? 'md:grid-cols-2' : ''} gap-8`}>
+          {/* Left: Add New Surgical Record - Only for doctors and nurses */}
+          {canEdit && (
           <div>
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Add Surgical Record</h2>
@@ -140,6 +143,7 @@ const AddSurgicalRecords = () => {
               </div>
             </div>
           </div>
+          )}
           {/* Right: Display Surgical History */}
           <div>
             <div className="bg-white rounded-lg shadow-md p-6">

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, Brain, FileText, History } from "lucide-react";
+import { Calendar, Brain, FileText, History, Shield } from "lucide-react";
+import useRoleAccess from '../utils/useRoleAccess';
 
 const PsychologicalRecords = ({ patientId, onHistoryUpdate }) => {
+  const { canEdit, userPosition, loading: roleLoading } = useRoleAccess();
   const today = new Date().toISOString().split("T")[0];
   const [psychological, setPsychological] = useState("");
   const [comment, setComment] = useState("");
@@ -63,7 +65,8 @@ const PsychologicalRecords = ({ patientId, onHistoryUpdate }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      {/* Left side: Add Psychological Record */}
+      {/* Left side: Add Psychological Record - Only for doctors and nurses */}
+      {canEdit && (
       <div className="flex flex-col h-full min-h-[400px] bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <div className="space-y-6">
           <div className="flex items-center gap-2 mb-4">
@@ -123,6 +126,7 @@ const PsychologicalRecords = ({ patientId, onHistoryUpdate }) => {
           </div>
         </div>
       </div>
+      )}
       {/* Right side: Past Psychological History */}
       <div className="flex flex-col h-full min-h-[400px] bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
