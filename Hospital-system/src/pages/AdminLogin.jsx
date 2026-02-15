@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Lock, LogIn, Eye, EyeOff, Shield, Crown, AlertCircle, CheckCircle } from "lucide-react";
+import useAuth from "../utils/useAuth";
 
 const AdminLogin = () => {
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
@@ -57,10 +59,8 @@ const AdminLogin = () => {
                     return;
                 }
 
-                // Store admin data
-                localStorage.setItem('user', JSON.stringify(data.staff));
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userRole', 'admin');
+                // Store admin data with token using useAuth login function
+                login(data.staff, data.token, 'admin');
                 
                 // Check if admin has temporary password
                 if (data.staff.isPasswordTemporary) {
