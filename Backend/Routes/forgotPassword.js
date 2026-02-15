@@ -163,7 +163,7 @@ router.patch('/accept', async (req, res) => {
 		res.json({ 
 			message: 'Password reset request accepted successfully.',
 			username: username,
-			tempPassword: tempPassword,
+			tempPassword: encryptedTempPword,
 			instruction: 'User should login with this temporary password and change it immediately.'
 		});
 

@@ -10,7 +10,8 @@ const staffSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
   passwordResetAt: { type: Date },
   isPasswordTemporary: { type: Boolean, default: false },
-  lastLoginAt: { type: Date }
+  lastLoginAt: { type: Date },
+  email: {type: String, required: false}
 });
 
 // Prevent OverwriteModelError
