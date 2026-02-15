@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Lock, LogIn, Eye, EyeOff, Shield } from "lucide-react";
+import useAuth from "../utils/useAuth";
 
 const LoginScreen = () => {
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         username: "",
@@ -64,18 +66,17 @@ const LoginScreen = () => {
             const data = await response.json();
             
             if (response.ok) {
-                // Login success: store user data and navigate
+                // Login success: store user data and token
                 console.log('Login successful:', data);
                 
-                // Store user data in localStorage
-                localStorage.setItem('user', JSON.stringify(data.staff));
-                localStorage.setItem('isLoggedIn', 'true');
+                // Store token and user data using useAuth login function
+                const role = data.staff.isAdmin ? 'admin' : 'staff';
+                login(data.staff, data.token, role);
                 
                 // Check if user has temporary password
                 if (data.staff.isPasswordTemporary) {
                     // Store user info for change password page
                     localStorage.setItem('needsPasswordChange', 'true');
-                    localStorage.setItem('userRole', data.staff.isAdmin ? 'admin' : 'staff');
                     alert('You are using a temporary password. You will be redirected to change your password.');
                     navigate('/change-password');
                     return;
@@ -83,10 +84,8 @@ const LoginScreen = () => {
                 
                 // Navigate based on user role
                 if (data.staff.isAdmin) {
-                    localStorage.setItem('userRole', 'admin');
                     navigate('/admin-dashboard'); // Admin dashboard
                 } else {
-                    localStorage.setItem('userRole', 'staff');
                     navigate('/dashboard'); // Regular user dashboard
                 }
             } else {

@@ -18,6 +18,7 @@ import {
   BarChart3,
   Shield,
 } from 'lucide-react';
+import { apiGet } from '../utils/apiClient';
 
 // Dynamic stats state
 const initialStats = [
@@ -64,8 +65,7 @@ const AdminDashboard = () => {
 
   // Fetch stats from backend
   React.useEffect(() => {
-    fetch('http://localhost:3000/stats')
-      .then(res => res.json())
+    apiGet('/stats')
       .then(data => {
         setStats(prev => prev.map(stat => {
           if (stat.label === 'Doctors') return { ...stat, value: data.doctors };
@@ -79,8 +79,7 @@ const AdminDashboard = () => {
       .catch(err => console.error('Error fetching stats:', err));
 
     // Fetch pending staff count
-    fetch('http://localhost:3000/admin/staff/pending')
-      .then(res => res.json())
+    apiGet('/admin/staff/pending')
       .then(data => {
         setStats(prev => prev.map(stat => 
           stat.label === 'Pending Staff' ? { ...stat, value: data.length } : stat

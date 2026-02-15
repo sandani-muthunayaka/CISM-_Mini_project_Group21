@@ -11,6 +11,9 @@ const staffSchema = new mongoose.Schema({
   passwordResetAt: { type: Date },
   isPasswordTemporary: { type: Boolean, default: false },
   lastLoginAt: { type: Date },
+  lastActivityAt: { type: Date },
+  failedLoginAttempts: { type: Number, default: 0 },
+  accountLockedUntil: { type: Date, default: null }
   email: {type: String, required: false}
 });
 

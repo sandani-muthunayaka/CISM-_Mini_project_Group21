@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const Staff = require('../../Model/staff');
+const { validatePasswordComplexity } = require('../passwordValidator');
 
 async function createInitialAdmin() {
   try {
@@ -16,11 +17,18 @@ async function createInitialAdmin() {
     // Create default admin credentials
     const adminData = {
       username: 'admin',
-      password: 'admin123', // Change this to a secure password
+      password: 'Admin@12345', // Secure password meeting complexity requirements
       employee_number: 'ADMIN001',
       position: 'Admin',
       status: 'accepted' // Admin is automatically accepted
     };
+
+    // Validate password complexity
+    const passwordValidation = validatePasswordComplexity(adminData.password);
+    if (!passwordValidation.isValid) {
+      console.error('Admin password does not meet complexity requirements:', passwordValidation.errors);
+      return { success: false, message: 'Password must contain at least 12 characters including uppercase, lowercase, number and special character.' };
+    }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(adminData.password, 10);
@@ -33,14 +41,16 @@ async function createInitialAdmin() {
       position: adminData.position,
       status: adminData.status,
       isAdmin: true,
-      isPasswordTemporary: false
+      isPasswordTemporary: false,
+      failedLoginAttempts: 0,
+      accountLockedUntil: null
     });
 
     await adminUser.save();
 
     console.log('Initial admin user created successfully');
     console.log('Username: admin');
-    console.log('Password: admin123');
+    console.log('Password: Admin@12345');
     console.log('Please change the password after first login!');
 
     return { 

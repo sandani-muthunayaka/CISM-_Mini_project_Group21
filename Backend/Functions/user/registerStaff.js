@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const Staff = require('../../Model/staff');
+const { validatePasswordComplexity } = require('../passwordValidator');
 
 async function registerStaff(req, res) {
   try {
@@ -8,6 +9,14 @@ async function registerStaff(req, res) {
     // Basic validation
     if (!username || !password || !employee_number || !position) {
       return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    // Validate password complexity
+    const passwordValidation = validatePasswordComplexity(password);
+    if (!passwordValidation.isValid) {
+      return res.status(400).json({ 
+        message: 'Password must contain at least 12 characters including uppercase, lowercase, number and special character.'
+      });
     }
 
     // Check for duplicate username or employee number
@@ -30,7 +39,9 @@ async function registerStaff(req, res) {
       password: hashedPassword,
       employee_number,
       position,
-      status: status
+      status: status,
+      failedLoginAttempts: 0,
+      accountLockedUntil: null
     });
 
     await newStaff.save();
