@@ -238,6 +238,66 @@ export const canEditPatientRecords = () => {
   return hasRole('doctor') || hasRole('nurse');
 };
 
+// ========== AUDIT LOG API FUNCTIONS ==========
+
+/**
+ * Get all audit logs with filtering
+ * Admin only
+ */
+export const getAuditLogs = async (filters = {}) => {
+  const queryParams = new URLSearchParams();
+  
+  if (filters.page) queryParams.append('page', filters.page);
+  if (filters.limit) queryParams.append('limit', filters.limit);
+  if (filters.userId) queryParams.append('userId', filters.userId);
+  if (filters.action) queryParams.append('action', filters.action);
+  if (filters.resourceType) queryParams.append('resourceType', filters.resourceType);
+  if (filters.result) queryParams.append('result', filters.result);
+  if (filters.startDate) queryParams.append('startDate', filters.startDate);
+  if (filters.endDate) queryParams.append('endDate', filters.endDate);
+  
+  return apiGet(`/audit/logs?${queryParams.toString()}`);
+};
+
+/**
+ * Get audit logs for a specific user
+ */
+export const getUserAuditLogs = async (userId, page = 1, limit = 50) => {
+  return apiGet(`/audit/user/${userId}?page=${page}&limit=${limit}`);
+};
+
+/**
+ * Get audit logs for a specific patient
+ * Admin only
+ */
+export const getPatientAuditLogs = async (patientId, page = 1, limit = 50) => {
+  return apiGet(`/audit/patient/${patientId}?page=${page}&limit=${limit}`);
+};
+
+/**
+ * Get failed login attempts
+ * Admin only
+ */
+export const getFailedLoginAttempts = async (hours = 24) => {
+  return apiGet(`/audit/failed-logins?hours=${hours}`);
+};
+
+/**
+ * Get suspicious activity summary
+ * Admin only
+ */
+export const getSuspiciousActivity = async (hours = 24) => {
+  return apiGet(`/audit/suspicious?hours=${hours}`);
+};
+
+/**
+ * Get audit statistics
+ * Admin only
+ */
+export const getAuditStats = async (hours = 24) => {
+  return apiGet(`/audit/stats?hours=${hours}`);
+};
+
 // Export for backward compatibility if needed
 export default {
   apiRequest,
@@ -253,4 +313,10 @@ export default {
   hasRole,
   isAdmin,
   canEditPatientRecords,
+  getAuditLogs,
+  getUserAuditLogs,
+  getPatientAuditLogs,
+  getFailedLoginAttempts,
+  getSuspiciousActivity,
+  getAuditStats,
 };

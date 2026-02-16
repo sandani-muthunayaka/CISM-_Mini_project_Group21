@@ -55,6 +55,7 @@ import Reports from './pages/Reports';
 import PatientReport from './pages/PatientReport';
 import StaffReport from './pages/StaffReport';
 import BookReport from './pages/BookReport';
+import AuditLogs from './pages/AuditLogs';
 
 import SideBar from './functions/SideBar';
 import NavBar from './functions/NavBar';
@@ -83,19 +84,19 @@ createRoot(document.getElementById('root')).render(
         <Route path="/AdminStaffVerification" element={<AdminRoute><AdminStaffVerification /></AdminRoute>} />
         <Route path="/PendingStaffRequests" element={<AdminRoute><PendingStaffRequests /></AdminRoute>} />
         
-        {/* Medical Staff Only Routes - Patient Registration (Doctors & Nurses) */}
-        <Route path="/personalDetails" element={<MedicalStaffRoute><PersonalDetails /></MedicalStaffRoute>} />
-        <Route path="/personalDetails3" element={<MedicalStaffRoute><PersonalDetails3 /></MedicalStaffRoute>} />
-        <Route path="/personalDetails5" element={<MedicalStaffRoute><PersonalDetails5 /></MedicalStaffRoute>} />
-        <Route path="/AddSurgicalRecords" element={<MedicalStaffRoute><AddSurgicalRecords /></MedicalStaffRoute>} />
-        <Route path="/psychologicalRecords" element={<MedicalStaffRoute><PsychologicalRecords /></MedicalStaffRoute>} />
-        <Route path="/immunizationRecords" element={<MedicalStaffRoute><ImmunizationRecords /></MedicalStaffRoute>} />
-        <Route path="/PastSurgicalHistory" element={<MedicalStaffRoute><PastSurgicalHistory /></MedicalStaffRoute>} />
-        <Route path="/PastPsychologicalHistory" element={<MedicalStaffRoute><PastPsychologicalHistory /></MedicalStaffRoute>} />
-        <Route path="/PastImmunizationHistory" element={<MedicalStaffRoute><PastImmunizationHistory /></MedicalStaffRoute>} />
-        <Route path="/GynHistoryPage" element={<MedicalStaffRoute><GynHistoryPage /></MedicalStaffRoute>} />
-        <Route path="/OccupationalHistory" element={<MedicalStaffRoute><OccupationalHistory /></MedicalStaffRoute>} />
-        <Route path="/SuccessfulRegistration" element={<MedicalStaffRoute><SuccessfulRegistration /></MedicalStaffRoute>} />
+        {/* Patient Registration Routes - All authenticated staff can register patients */}
+        <Route path="/personalDetails" element={<ProtectedRoute><PersonalDetails /></ProtectedRoute>} />
+        <Route path="/personalDetails3" element={<ProtectedRoute><PersonalDetails3 /></ProtectedRoute>} />
+        <Route path="/personalDetails5" element={<ProtectedRoute><PersonalDetails5 /></ProtectedRoute>} />
+        <Route path="/AddSurgicalRecords" element={<ProtectedRoute><AddSurgicalRecords /></ProtectedRoute>} />
+        <Route path="/psychologicalRecords" element={<ProtectedRoute><PsychologicalRecords /></ProtectedRoute>} />
+        <Route path="/immunizationRecords" element={<ProtectedRoute><ImmunizationRecords /></ProtectedRoute>} />
+        <Route path="/PastSurgicalHistory" element={<ProtectedRoute><PastSurgicalHistory /></ProtectedRoute>} />
+        <Route path="/PastPsychologicalHistory" element={<ProtectedRoute><PastPsychologicalHistory /></ProtectedRoute>} />
+        <Route path="/PastImmunizationHistory" element={<ProtectedRoute><PastImmunizationHistory /></ProtectedRoute>} />
+        <Route path="/GynHistoryPage" element={<ProtectedRoute><GynHistoryPage /></ProtectedRoute>} />
+        <Route path="/OccupationalHistory" element={<ProtectedRoute><OccupationalHistory /></ProtectedRoute>} />
+        <Route path="/SuccessfulRegistration" element={<ProtectedRoute><SuccessfulRegistration /></ProtectedRoute>} />
         
         {/* Protected Patient Records Routes */}
         <Route path="/PatientRecords" element={<ProtectedRoute><PatientRecords /></ProtectedRoute>} />
@@ -118,6 +119,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/PatientReport" element={<AdminRoute><PatientReport /></AdminRoute>} />
         <Route path="/StaffReport" element={<AdminRoute><StaffReport /></AdminRoute>} />
         <Route path="/BookReport" element={<AdminRoute><BookReport /></AdminRoute>} />
+        <Route path="/audit-logs" element={<AdminRoute><AuditLogs /></AdminRoute>} />
         
         {/* Protected General Routes */}
         <Route path="/Notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />

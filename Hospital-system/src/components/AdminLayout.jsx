@@ -25,6 +25,7 @@ const adminSidebarItems = [
   { label: 'Patient Records', path: '/patientRecords', icon: <FileText className="w-5 h-5 mr-2" /> },
   { label: 'Notifications', path: '/Notifications', icon: <Bell className="w-5 h-5 mr-2" /> },
   { label: 'Reports & Analytics', path: '/Reports', icon: <BarChart3 className="w-5 h-5 mr-2" /> },
+  { label: 'Audit Logs', path: '/audit-logs', icon: <Shield className="w-5 h-5 mr-2" /> },
   { label: 'Request Lost Book', path: '/RequestLostBook', icon: <Building2 className="w-5 h-5 mr-2" /> },
 //   admin
   { label: 'Logout', path: '/admin-login', icon: <LogOut className="w-5 h-5 mr-2" />, action: 'logout' },

@@ -72,6 +72,16 @@ router.post('/admin/staff', authenticate, requireAdmin, validateStaffData, regis
 const getStats = require('../Functions/getStats');
 router.get('/stats', authenticate, getStats);
 
+// ========== AUDIT LOG ROUTES (Admin Authentication Required) ==========
+
+const auditLogFunctions = require('../Functions/auditLogFunctions');
+router.get('/audit/logs', authenticate, requireAdmin, auditLogFunctions.getAllAuditLogs);
+router.get('/audit/user/:userId', authenticate, auditLogFunctions.getUserAuditLogs);
+router.get('/audit/patient/:patientId', authenticate, requireAdmin, auditLogFunctions.getPatientAuditLogs);
+router.get('/audit/failed-logins', authenticate, requireAdmin, auditLogFunctions.getFailedLoginAttempts);
+router.get('/audit/suspicious', authenticate, requireAdmin, auditLogFunctions.getSuspiciousActivity);
+router.get('/audit/stats', authenticate, requireAdmin, auditLogFunctions.getAuditStats);
+
 // ========== DEBUG ROUTES (Protected) ==========
 
 // Debug route to check user data - require admin in production
