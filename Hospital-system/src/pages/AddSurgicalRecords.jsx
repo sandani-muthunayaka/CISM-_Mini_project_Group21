@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import SideBar from "../functions/SideBar";
 import { Calendar, Stethoscope, FileText, History, Shield } from "lucide-react";
 import useRoleAccess from '../utils/useRoleAccess';
+import { apiGet, apiPost } from '../utils/api';
 
 const AddSurgicalRecords = () => {
   const navigate = useNavigate();
@@ -21,13 +22,13 @@ const AddSurgicalRecords = () => {
     const fetchRecords = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://localhost:3000/patient/${patientId}`);
-        const patient = await res.json();
+        const patient = await apiGet(`/patient/${patientId}`);
         const records = patient.tab5?.surgicalRecords || [];
         setSurgicalRecords(records);
         setError("");
       } catch (err) {
-        setError("Failed to fetch surgical records");
+        console.error('Error fetching surgical records:', err);
+        setError(err.message || "Failed to fetch surgical records");
       } finally {
         setLoading(false);
       }
@@ -40,24 +41,21 @@ const AddSurgicalRecords = () => {
     const newRecord = { name: surgery, date: today, comments: comment };
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/patient/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientId,
-          tabIndex: 5,
-          data: {
+      const updatedPatient = await apiPost("/patient/save", {
+        patientId,
+        tabs: {
+          tab5: {
             surgicalRecords: [...surgicalRecords, newRecord]
           }
-        })
+        }
       });
-      const updatedPatient = await res.json();
       setSurgicalRecords(updatedPatient.tab5.surgicalRecords);
       setSurgery("");
       setComment("");
       setError("");
     } catch (err) {
-      setError("Failed to save surgical record");
+      console.error('Error saving surgical record:', err);
+      setError(err.message || "Failed to save surgical record");
     } finally {
       setLoading(false);
     }

@@ -5,7 +5,7 @@ import App from './App';
 import './index.css';
 
 // Route Guards
-import { ProtectedRoute, AdminRoute, GuestRoute } from './utils/RouteGuards';
+import { ProtectedRoute, AdminRoute, GuestRoute, MedicalStaffRoute } from './utils/RouteGuards';
 
 // Authentication Pages
 import LoginScreen from './pages/LoginScreen';
@@ -83,19 +83,19 @@ createRoot(document.getElementById('root')).render(
         <Route path="/AdminStaffVerification" element={<AdminRoute><AdminStaffVerification /></AdminRoute>} />
         <Route path="/PendingStaffRequests" element={<AdminRoute><PendingStaffRequests /></AdminRoute>} />
         
-        {/* Protected Patient Management Routes */}
-        <Route path="/personalDetails" element={<ProtectedRoute><PersonalDetails /></ProtectedRoute>} />
-        <Route path="/personalDetails3" element={<ProtectedRoute><PersonalDetails3 /></ProtectedRoute>} />
-        <Route path="/personalDetails5" element={<ProtectedRoute><PersonalDetails5 /></ProtectedRoute>} />
-        <Route path="/AddSurgicalRecords" element={<ProtectedRoute><AddSurgicalRecords /></ProtectedRoute>} />
-        <Route path="/psychologicalRecords" element={<ProtectedRoute><PsychologicalRecords /></ProtectedRoute>} />
-        <Route path="/immunizationRecords" element={<ProtectedRoute><ImmunizationRecords /></ProtectedRoute>} />
-        <Route path="/PastSurgicalHistory" element={<ProtectedRoute><PastSurgicalHistory /></ProtectedRoute>} />
-        <Route path="/PastPsychologicalHistory" element={<ProtectedRoute><PastPsychologicalHistory /></ProtectedRoute>} />
-        <Route path="/PastImmunizationHistory" element={<ProtectedRoute><PastImmunizationHistory /></ProtectedRoute>} />
-        <Route path="/GynHistoryPage" element={<ProtectedRoute><GynHistoryPage /></ProtectedRoute>} />
-        <Route path="/OccupationalHistory" element={<ProtectedRoute><OccupationalHistory /></ProtectedRoute>} />
-        <Route path="/SuccessfulRegistration" element={<ProtectedRoute><SuccessfulRegistration /></ProtectedRoute>} />
+        {/* Medical Staff Only Routes - Patient Registration (Doctors & Nurses) */}
+        <Route path="/personalDetails" element={<MedicalStaffRoute><PersonalDetails /></MedicalStaffRoute>} />
+        <Route path="/personalDetails3" element={<MedicalStaffRoute><PersonalDetails3 /></MedicalStaffRoute>} />
+        <Route path="/personalDetails5" element={<MedicalStaffRoute><PersonalDetails5 /></MedicalStaffRoute>} />
+        <Route path="/AddSurgicalRecords" element={<MedicalStaffRoute><AddSurgicalRecords /></MedicalStaffRoute>} />
+        <Route path="/psychologicalRecords" element={<MedicalStaffRoute><PsychologicalRecords /></MedicalStaffRoute>} />
+        <Route path="/immunizationRecords" element={<MedicalStaffRoute><ImmunizationRecords /></MedicalStaffRoute>} />
+        <Route path="/PastSurgicalHistory" element={<MedicalStaffRoute><PastSurgicalHistory /></MedicalStaffRoute>} />
+        <Route path="/PastPsychologicalHistory" element={<MedicalStaffRoute><PastPsychologicalHistory /></MedicalStaffRoute>} />
+        <Route path="/PastImmunizationHistory" element={<MedicalStaffRoute><PastImmunizationHistory /></MedicalStaffRoute>} />
+        <Route path="/GynHistoryPage" element={<MedicalStaffRoute><GynHistoryPage /></MedicalStaffRoute>} />
+        <Route path="/OccupationalHistory" element={<MedicalStaffRoute><OccupationalHistory /></MedicalStaffRoute>} />
+        <Route path="/SuccessfulRegistration" element={<MedicalStaffRoute><SuccessfulRegistration /></MedicalStaffRoute>} />
         
         {/* Protected Patient Records Routes */}
         <Route path="/PatientRecords" element={<ProtectedRoute><PatientRecords /></ProtectedRoute>} />

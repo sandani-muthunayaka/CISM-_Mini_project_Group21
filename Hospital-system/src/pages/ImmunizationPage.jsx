@@ -7,6 +7,7 @@ import ImmunizationRecords from "./ImmunizationRecords";
 import PastImmunizationHistory from "./PastImmunizationHistory";
 import { Shield } from "lucide-react";
 import useRoleAccess from '../utils/useRoleAccess';
+import { apiGet } from '../utils/api';
 
 const ImmunizationPage = () => {
   const { patientId } = useParams();
@@ -21,13 +22,13 @@ const ImmunizationPage = () => {
     const fetchRecords = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://localhost:3000/patient/${patientId}`);
-        const patient = await res.json();
+        const patient = await apiGet(`/patient/${patientId}`);
         const records = patient.tab4?.immunizationRecords || [];
         setImmunizationRecords(records);
         setError("");
       } catch (err) {
-        setError("Failed to fetch immunization records");
+        console.error('Error fetching immunization records:', err);
+        setError(err.message || "Failed to fetch immunization records");
       } finally {
         setLoading(false);
       }

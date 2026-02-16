@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import SideBar from '../functions/SideBar';
 import { ArrowLeft, FileText, Building2, Calendar, User, Shield } from 'lucide-react';
 import useRoleAccess from '../utils/useRoleAccess';
-
+import { apiGet, apiPost } from '../utils/api';
 
 const PatientHospitalization = () => {
   const { patientId } = useParams();
@@ -22,13 +22,15 @@ const PatientHospitalization = () => {
   React.useEffect(() => {
     if (patientId) {
       setLoading(true);
-      fetch(`http://localhost:3000/patient/${patientId}/hospitalization`)
-        .then(res => res.json())
+      apiGet(`/patient/${patientId}/hospitalization`)
         .then(data => {
           setRecords(data || []);
           setError("");
         })
-        .catch(() => setError("Failed to fetch hospitalization records"))
+        .catch(err => {
+          console.error('Error fetching hospitalization records:', err);
+          setError(err.message || "Failed to fetch hospitalization records");
+        })
         .finally(() => setLoading(false));
     }
   }, [patientId]);
@@ -40,31 +42,18 @@ const PatientHospitalization = () => {
   const handleSubmit = async e => {
     e.preventDefault();
     const newRecord = { ...form };
-    const res = await fetch(`http://localhost:3000/patient/${patientId}/hospitalization`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newRecord)
-    });
-    if (res.ok) {
-      try {
-        const updatedList = await res.json();
-        setRecords(updatedList);
-        setForm({
-          date: new Date().toLocaleDateString(),
-          ward: "Base Hospital - Avissawella",
-          diagnosis: "",
-          followUp: ""
-        });
-      } catch {
-        alert("Record saved, but could not update history from server response.");
-      }
-    } else {
-      let errorMsg = "Failed to save record. Please try again.";
-      try {
-        const errorData = await res.json();
-        errorMsg = errorData.error || errorMsg;
-      } catch {}
-      alert(errorMsg);
+    try {
+      const updatedList = await apiPost(`/patient/${patientId}/hospitalization`, newRecord);
+      setRecords(updatedList);
+      setForm({
+        date: new Date().toLocaleDateString(),
+        ward: "Base Hospital - Avissawella",
+        diagnosis: "",
+        followUp: ""
+      });
+    } catch (error) {
+      console.error('Error saving hospitalization record:', error);
+      alert(error.message || "Failed to save hospitalization record. Please try again.");
     }
   };
 

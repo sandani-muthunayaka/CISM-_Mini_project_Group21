@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Activity, Cigarette, Coffee, Wine } from "lu
 import SideBar2 from "../functions/SideBar2";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from 'axios';
+import { apiPost } from '../utils/api';
 
 const PersonalDetails3 = () => {
   const Navigate = useNavigate();
@@ -149,7 +150,7 @@ const PersonalDetails3 = () => {
         tabs: tabsToSave
       };
       console.log('Saving PersonalDetails3 data:', dataToSave);
-      await axios.post('http://localhost:3000/patient/save', dataToSave);
+      await apiPost('/patient/save', dataToSave);
       console.log('PersonalDetails3 data saved successfully for patient:', patientId);
       // Also save to localStorage as backup
       const localStorageKey = `patient_${patientId}_tab3`;

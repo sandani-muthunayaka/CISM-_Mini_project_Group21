@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from 'axios';
+import { apiPost } from '../utils/api';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from "react-icons/fa";
@@ -188,7 +189,7 @@ const PersonalDetails = () => {
       };
       console.log('Saving data:', dataToSave);
       // Save current tab data
-      const saveRes = await axios.post('http://localhost:3000/patient/save', dataToSave);
+      const saveRes = await apiPost('/patient/save', dataToSave);
       console.log('Data saved successfully for patient:', generatedPatientId);
       // Navigate to next page with patient ID
       Navigate(`/personalDetails3?patientId=${generatedPatientId}`);

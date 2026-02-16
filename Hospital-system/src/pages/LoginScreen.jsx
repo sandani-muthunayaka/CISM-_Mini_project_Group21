@@ -64,8 +64,13 @@ const LoginScreen = () => {
             const data = await response.json();
             
             if (response.ok) {
-                // Login success: store user data and navigate
+                // Login success: store user data and JWT token
                 console.log('Login successful:', data);
+                
+                // Store JWT token - IMPORTANT for authentication
+                if (data.token) {
+                    localStorage.setItem('token', data.token);
+                }
                 
                 // Store user data in localStorage
                 localStorage.setItem('user', JSON.stringify(data.staff));

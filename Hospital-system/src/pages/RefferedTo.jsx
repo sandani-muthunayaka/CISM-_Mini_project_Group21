@@ -5,6 +5,7 @@ import SideBar from "../functions/SideBar";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import useRoleAccess from '../utils/useRoleAccess';
+import { apiGet, apiPost } from '../utils/api';
 
 const RefferedTo = () => {
   const navigate = useNavigate();
@@ -33,13 +34,13 @@ const RefferedTo = () => {
     const fetchRecords = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://localhost:3000/patient/${patientId}`);
-        const patient = await res.json();
+        const patient = await apiGet(`/patient/${patientId}`);
         const records = patient.tab6?.referralRecords || [];
         setReferralRecords(records);
         setError("");
       } catch (err) {
-        setError("Failed to fetch referral records");
+        console.error('Error fetching referral records:', err);
+        setError(err.message || "Failed to fetch referral records");
       } finally {
         setLoading(false);
       }
@@ -66,19 +67,14 @@ const RefferedTo = () => {
     };
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/patient/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientId,
-          tabs: {
-            tab6: {
-              referralRecords: [...referralRecords, newRecord]
-            }
+      const updatedPatient = await apiPost("/patient/save", {
+        patientId,
+        tabs: {
+          tab6: {
+            referralRecords: [...referralRecords, newRecord]
           }
-        })
+        }
       });
-      const updatedPatient = await res.json();
       setReferralRecords(updatedPatient.tab6.referralRecords);
       setReferralData({
         referringDoctor: "",

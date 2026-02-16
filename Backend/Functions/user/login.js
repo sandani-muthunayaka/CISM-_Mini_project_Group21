@@ -1,5 +1,10 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const Staff = require('../../Model/staff');
+
+// JWT Secret - In production, this should be in environment variables
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+const JWT_EXPIRES_IN = '24h'; // Token expires in 24 hours
 
 async function loginStaff(req, res) {
   try {
@@ -45,9 +50,28 @@ async function loginStaff(req, res) {
       return res.status(401).json({ message: 'Invalid username or password.' });
     }
 
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        id: staff._id,
+        username: staff.username,
+        position: staff.position,
+        employeeNumber: staff.employee_number,
+        isAdmin: isAdmin
+      },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    // Update last login
+    staff.lastLoginAt = new Date();
+    await staff.save();
+
     // Login successful
     res.status(200).json({ 
-      message: 'Login successful.', 
+      message: 'Login successful.',
+      token: token, // JWT token for authentication
+      expiresIn: JWT_EXPIRES_IN,
       staff: { 
         username: staff.username, 
         position: staff.position, 
@@ -56,6 +80,7 @@ async function loginStaff(req, res) {
       } 
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Server error.', error: error.message });
   }
 }

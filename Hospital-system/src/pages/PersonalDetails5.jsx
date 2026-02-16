@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Calendar, Scale, Ruler, Heart, Eye, Stethosc
 import SideBar2 from "../functions/SideBar2";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from 'axios';
+import { apiPost } from '../utils/api';
 
 const PersonalDetails5 = () => {
   const navigate = useNavigate();
@@ -137,7 +138,7 @@ const PersonalDetails5 = () => {
       console.log('Saving PersonalDetails5 data:', dataToSave);
       
       // Save data to backend
-      await axios.post('http://localhost:3000/patient/save', dataToSave);
+      await apiPost('/patient/save', dataToSave);
       
       console.log('PersonalDetails5 data saved successfully for patient:', patientId);
       

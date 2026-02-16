@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import SideBar from '../functions/SideBar';
 import { Calendar, Pill, FileText, Shield } from "lucide-react";
 import useRoleAccess from '../utils/useRoleAccess';
+import { apiGet, apiPost } from '../utils/api';
 
 const PatientMedication = () => {
   const { patientId } = useParams();
@@ -18,9 +19,9 @@ const PatientMedication = () => {
 
   // Fetch medication history
   useEffect(() => {
-    fetch(`http://localhost:3000/patient/${patientId}/medication`)
-      .then(res => res.json())
-      .then(data => setMedications(data));
+    apiGet(`/patient/${patientId}/medication`)
+      .then(data => setMedications(data))
+      .catch(err => console.error('Error fetching medications:', err));
   }, [patientId]);
 
   // Handle form input
@@ -35,28 +36,13 @@ const PatientMedication = () => {
       ...form,
       date: new Date().toLocaleDateString()
     };
-    const res = await fetch(`http://localhost:3000/patient/${patientId}/medication`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newMed)
-    });
-    if (res.ok) {
-      try {
-        const updatedList = await res.json();
-        setMedications(updatedList);
-        setForm({ medication: "", dosage: "", comments: "" });
-      } catch {
-        alert("Medication saved, but could not update history from server response.");
-      }
-    } else {
-      let errorMsg = "Failed to save medication. Please try again.";
-      try {
-        const errorData = await res.json();
-        errorMsg = errorData.error || errorMsg;
-      } catch {
-        // If response is not JSON, keep generic error
-      }
-      alert(errorMsg);
+    try {
+      const updatedList = await apiPost(`/patient/${patientId}/medication`, newMed);
+      setMedications(updatedList);
+      setForm({ medication: "", dosage: "", comments: "" });
+    } catch (error) {
+      console.error('Error saving medication:', error);
+      alert(error.message || "Failed to save medication. Please try again.");
     }
   };
 

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { ArrowLeft, FileText, Calendar, User, Baby, AlertCircle, CheckCircle, ChevronRight, HeartPulse, Shield } from "lucide-react";
 import SideBar from "../functions/SideBar";
 import useRoleAccess from '../utils/useRoleAccess';
+import { apiGet, apiPost } from '../utils/api';
 
 const GynHistoryPage = () => {
   const symptoms = [
@@ -39,8 +40,7 @@ const GynHistoryPage = () => {
   useEffect(() => {
     if (patientId) {
       setLoading(true);
-      fetch(`http://localhost:3000/patient/${patientId}`)
-        .then(res => res.json())
+      apiGet(`/patient/${patientId}`)
         .then(data => {
           setPatient({
             name: data.tab1?.name || "",
@@ -50,7 +50,10 @@ const GynHistoryPage = () => {
           setGynHistory(data.tab6?.gynHistory || null);
           setError("");
         })
-        .catch(() => setError("Failed to fetch Gyn history"))
+        .catch((err) => {
+          console.error('Error fetching Gyn history:', err);
+          setError(err.message || "Failed to fetch Gyn history");
+        })
         .finally(() => setLoading(false));
     }
   }, [patientId]);
@@ -95,17 +98,14 @@ const GynHistoryPage = () => {
     setError("");
     try {
       const filledGynHistory = getFilledGynHistory(form);
-      const res = await fetch("http://localhost:3000/patient/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientId,
-          tabIndex: 6,
-          data: { gynHistory: filledGynHistory }
-        })
+      const data = await apiPost("/patient/save", {
+        patientId,
+        tabs: {
+          tab6: {
+            gynHistory: filledGynHistory
+          }
+        }
       });
-      if (!res.ok) throw new Error("Failed to save Gyn history");
-      const data = await res.json();
       setGynHistory(data.tab6?.gynHistory || filledGynHistory);
       setForm({
         consanguineousMarriage: "",

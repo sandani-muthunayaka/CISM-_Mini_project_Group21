@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Bell, CheckCircle } from 'lucide-react';
 import StaffLayout from '../components/StaffLayout';
-
-
-
+import { apiGet, apiPut } from '../utils/api';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -14,9 +12,7 @@ const Notifications = () => {
     const fetchNotifications = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:3000/notifications');
-        if (!response.ok) throw new Error('Failed to fetch notifications');
-        const data = await response.json();
+        const data = await apiGet('/notifications');
         setNotifications(data);
       } catch (err) {
         setError(err.message);
@@ -29,10 +25,10 @@ const Notifications = () => {
 
   const markAsRead = async (id) => {
     try {
-      await fetch(`http://localhost:3000/notifications/${id}/read`, { method: 'PUT' });
+      await apiPut(`/notifications/${id}/read`, {});
       setNotifications(notifications.map(n => n._id === id ? { ...n, read: true } : n));
     } catch (err) {
-      // Optionally handle error
+      console.error('Error marking notification as read:', err);
     }
   };
 

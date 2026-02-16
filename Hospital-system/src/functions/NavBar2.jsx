@@ -6,6 +6,7 @@ import pharImg from '../assets/phar.png';
 import patImg from '../assets/patient.png';
 import labImg from '../assets/lab.png';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import useAuth from '../utils/useAuth';
 import {
   Home,
   UserPlus,
@@ -25,7 +26,7 @@ import {
 
 const sidebarItems = [
   { label: 'Home', path: '/dashboard', icon: <Home className="w-5 h-5 mr-2" /> },
-  { label: 'Patient Registration & Book Issuance', path: '/personalDetails', icon: <UserPlus className="w-5 h-5 mr-2" /> },
+  { label: 'Patient Registration & Book Issuance', path: '/personalDetails', icon: <UserPlus className="w-5 h-5 mr-2" />, requiresMedicalStaff: true },
   { label: 'Patient Records', path: '/patientRecords', icon: <FileText className="w-5 h-5 mr-2" /> },
   { label: 'Notifications', path: '/Notifications', icon: <Bell className="w-5 h-5 mr-2" /> },
   { label: 'Reports', path: '/Reports', icon: <FileText className="w-5 h-5 mr-2" /> },
@@ -77,9 +78,18 @@ const stats = [
 
 const NavBar2 = () => {
 
+  const { isMedicalStaff } = useAuth();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('/dashboard');
   const navigate = useNavigate();
+
+  // Filter menu items based on user role
+  const filteredSidebarItems = sidebarItems.filter(item => {
+    if (item.requiresMedicalStaff) {
+      return isMedicalStaff;
+    }
+    return true;
+  });
 
   // Update active tab based on current location
   React.useEffect(() => {
@@ -103,7 +113,7 @@ const NavBar2 = () => {
           <span className="text-lg font-bold tracking-wide">Base Hospital - Avissawella</span>
         </div>
         <nav className="flex-1 flex flex-col py-4">
-          {sidebarItems.map((item, idx) => (
+          {filteredSidebarItems.map((item, idx) => (
             item.action === 'logout' ? (
               <button
                 key={idx}

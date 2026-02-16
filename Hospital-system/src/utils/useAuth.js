@@ -57,6 +57,13 @@ const useAuth = () => {
     setIsAdmin(false);
   };
 
+  // Check if user is medical staff (Doctor or Nurse)
+  const isMedicalStaff = () => {
+    if (!user || !user.position) return false;
+    const position = user.position.toLowerCase();
+    return position === 'doctor' || position === 'nurse';
+  };
+
   return {
     isAuthenticated,
     isAdmin,
@@ -64,7 +71,8 @@ const useAuth = () => {
     loading,
     login,
     logout,
-    checkAuthStatus
+    checkAuthStatus,
+    isMedicalStaff: isMedicalStaff()
   };
 };
 

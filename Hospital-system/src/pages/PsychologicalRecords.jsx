@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, Brain, FileText, History, Shield } from "lucide-react";
 import useRoleAccess from '../utils/useRoleAccess';
+import { apiGet, apiPost } from '../utils/api';
 
 const PsychologicalRecords = ({ patientId, onHistoryUpdate }) => {
   const { canEdit, userPosition, loading: roleLoading } = useRoleAccess();
@@ -12,8 +13,7 @@ const PsychologicalRecords = ({ patientId, onHistoryUpdate }) => {
   const [allTabs, setAllTabs] = useState({});
   useEffect(() => {
     if (patientId) {
-      fetch(`http://localhost:3000/patient/${patientId}`)
-        .then((res) => res.json())
+      apiGet(`/patient/${patientId}`)
         .then((data) => {
           const backendRecords = data.tab4?.psychologicalRecords || [];
           setRecords(backendRecords);
@@ -29,7 +29,8 @@ const PsychologicalRecords = ({ patientId, onHistoryUpdate }) => {
             tab5: data.tab5 || {},
             tab6: data.tab6 || {}
           });
-        });
+        })
+        .catch(err => console.error('Error fetching psychological records:', err));
     }
   }, [patientId]);
 
@@ -50,13 +51,9 @@ const PsychologicalRecords = ({ patientId, onHistoryUpdate }) => {
     };
     setAllTabs(updatedTabs);
     // Save all tab data to backend
-    await fetch("http://localhost:3000/patient/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        patientId,
-        tabs: updatedTabs
-      }),
+    await apiPost("/patient/save", {
+      patientId,
+      tabs: updatedTabs
     });
     if (onHistoryUpdate) {
       onHistoryUpdate(updatedRecords);

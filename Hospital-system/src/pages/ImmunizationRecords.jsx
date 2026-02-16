@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Calendar, Syringe, Shield, FileText, History
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
+import { apiGet, apiPost } from '../utils/api';
 
 const ImmunizationRecords = ({ patientId: propPatientId, immunizationRecords, setImmunizationRecords }) => {
   const params = useParams();
@@ -39,9 +40,8 @@ const ImmunizationRecords = ({ patientId: propPatientId, immunizationRecords, se
 
   useEffect(() => {
     if (patientId) {
-      axios.get(`http://localhost:3000/patient/${patientId}`)
-        .then(res => {
-          const data = res.data;
+      apiGet(`/patient/${patientId}`)
+        .then(data => {
           setAllTabs({
             tab1: data.tab1 || {},
             tab2: data.tab2 || {},
@@ -53,6 +53,10 @@ const ImmunizationRecords = ({ patientId: propPatientId, immunizationRecords, se
             tab5: data.tab5 || {},
             tab6: data.tab6 || {}
           });
+        })
+        .catch(err => {
+          console.error('Error fetching patient data:', err);
+          setError('Failed to fetch patient data');
         });
     }
   }, [patientId]);
@@ -74,11 +78,11 @@ const ImmunizationRecords = ({ patientId: propPatientId, immunizationRecords, se
           immunizationRecords: [...(allTabs.tab4?.immunizationRecords || []), newRecord]
         }
       };
-      const res = await axios.post("http://localhost:3000/patient/save", {
+      const res = await apiPost("/patient/save", {
         patientId,
         tabs: updatedTabs
       });
-      setImmunizationRecords(res.data.tab4.immunizationRecords);
+      setImmunizationRecords(res.tab4.immunizationRecords);
       setAllTabs(updatedTabs);
       // Clear form
       setImmunizationData({

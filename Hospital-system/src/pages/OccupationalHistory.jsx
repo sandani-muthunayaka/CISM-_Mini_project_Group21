@@ -4,6 +4,7 @@ import { Briefcase, MapPin, Calendar, Clock, User, ChevronLeft, ChevronRight, Sh
 import SideBar from '../functions/SideBar';
 import axios from 'axios';
 import useRoleAccess from '../utils/useRoleAccess';
+import { apiGet, apiPost } from '../utils/api';
 
 const OccupationalHistory = () => {
   const { patientId } = useParams();
@@ -16,6 +17,7 @@ const OccupationalHistory = () => {
   const [durationOfWork, setDurationOfWork] = useState('');
   const [records, setRecords] = useState([]);
   const [allTabs, setAllTabs] = useState({});
+  const [error, setError] = useState("");
 
   const years = Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - i);
   const ages = Array.from({ length: 80 }, (_, i) => i + 1);
@@ -24,9 +26,8 @@ const OccupationalHistory = () => {
   // Fetch records from backend on mount
   React.useEffect(() => {
     if (patientId) {
-      axios.get(`http://localhost:3000/patient/${patientId}`)
-        .then(res => {
-          const data = res.data;
+      apiGet(`/patient/${patientId}`)
+        .then(data => {
           const backendRecords = data.tab4?.occupationalRecords || [];
           setRecords(backendRecords);
           setAllTabs({
@@ -41,7 +42,7 @@ const OccupationalHistory = () => {
             tab6: data.tab6 || {}
           });
         })
-        .catch(() => {});
+        .catch(err => console.error('Error fetching occupational records:', err));
     }
   }, [patientId]);
 
@@ -66,11 +67,11 @@ const OccupationalHistory = () => {
           occupationalRecords: updatedRecords
         }
       };
-      const res = await axios.post('http://localhost:3000/patient/save', {
+      const res = await apiPost('/patient/save', {
         patientId,
         tabs: updatedTabs
       });
-      setRecords(res.data.tab4.occupationalRecords || []);
+      setRecords(res.tab4.occupationalRecords || []);
       setAllTabs(updatedTabs);
       setSelectedYear('');
       setOccupation('');
@@ -78,8 +79,10 @@ const OccupationalHistory = () => {
       setWorkplaceAddress('');
       setAgeOfInitiation('');
       setDurationOfWork('');
-    } catch {
-      // Optionally handle error
+      setError('');
+    } catch (err) {
+      console.error('Error saving occupational record:', err);
+      setError(err.message || 'Failed to save occupational record');
     }
   };
 
@@ -226,6 +229,12 @@ const OccupationalHistory = () => {
                       Add <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
+                  {/* Error Display */}
+                  {error && (
+                    <div className="text-red-600 text-sm mt-2">
+                      {error}
+                    </div>
+                  )}
                 </form>
               </div>
             </div>

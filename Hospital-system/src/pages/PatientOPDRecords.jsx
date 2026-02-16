@@ -3,6 +3,7 @@ import SideBar from '../functions/SideBar';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Calendar, User, Stethoscope, Shield } from 'lucide-react';
 import useRoleAccess from '../utils/useRoleAccess';
+import { apiGet, apiPost } from '../utils/api';
 
 const PatientOPDRecords = () => {
   const { patientId } = useParams();
@@ -21,13 +22,15 @@ const PatientOPDRecords = () => {
   React.useEffect(() => {
     if (patientId) {
       setLoading(true);
-      fetch(`http://localhost:3000/patient/${patientId}/opd`)
-        .then(res => res.json())
+      apiGet(`/patient/${patientId}/opd`)
         .then(data => {
           setRecords(data || []);
           setError("");
         })
-        .catch(() => setError("Failed to fetch OPD records"))
+        .catch(err => {
+          console.error('Error fetching OPD records:', err);
+          setError(err.message || "Failed to fetch OPD records");
+        })
         .finally(() => setLoading(false));
     }
   }, [patientId]);
@@ -39,31 +42,18 @@ const PatientOPDRecords = () => {
   const handleSubmit = async e => {
     e.preventDefault();
     const newRecord = { ...form };
-    const res = await fetch(`http://localhost:3000/patient/${patientId}/opd`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newRecord)
-    });
-    if (res.ok) {
-      try {
-        const updatedList = await res.json();
-        setRecords(updatedList);
-        setForm({
-          date: new Date().toLocaleDateString(),
-          symptoms: "",
-          treatment: "",
-          investigation: ""
-        });
-      } catch {
-        alert("Record saved, but could not update history from server response.");
-      }
-    } else {
-      let errorMsg = "Failed to save record. Please try again.";
-      try {
-        const errorData = await res.json();
-        errorMsg = errorData.error || errorMsg;
-      } catch {}
-      alert(errorMsg);
+    try {
+      const updatedList = await apiPost(`/patient/${patientId}/opd`, newRecord);
+      setRecords(updatedList);
+      setForm({
+        date: new Date().toLocaleDateString(),
+        symptoms: "",
+        treatment: "",
+        investigation: ""
+      });
+    } catch (error) {
+      console.error('Error saving OPD record:', error);
+      alert(error.message || "Failed to save OPD record. Please try again.");
     }
   };
 

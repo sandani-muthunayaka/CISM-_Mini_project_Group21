@@ -7,13 +7,24 @@ const forgotPasswordRouter = require('./Routes/forgotPassword');
 const app=express()
 const cors = require('cors');
 
+// Body parser middleware - support both JSON and form-data
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Add this to support form-data
 app.use(cors());
 
 app.use('/', routes);
 app.use('/notifications', notificationRoutes);
 app.use('/reports', reportRoutes);
 app.use('/forgot-password', forgotPasswordRouter);
+
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error('Global error handler:', err);
+    res.status(err.status || 500).json({
+        message: err.message || 'Internal Server Error',
+        error: process.env.NODE_ENV === 'development' ? err : {}
+    });
+});
 
 connectDB()
 

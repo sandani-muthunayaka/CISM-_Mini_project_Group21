@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, User, Hash, IdCard, Search } from 'lucide-react';
 import StaffLayout from '../components/StaffLayout';
-
-// API base URL
-const API_BASE_URL = 'http://localhost:3000';
+import { apiGet } from '../utils/api';
 
 const PatientRecords = () => {
   const navigate = useNavigate();
@@ -19,16 +17,12 @@ const PatientRecords = () => {
     const fetchPatients = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_BASE_URL}/patients`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch patients');
-        }
-        const data = await response.json();
+        const data = await apiGet('/patients');
         setPatients(data);
         setError(null);
       } catch (err) {
         console.error('Error fetching patients:', err);
-        setError('Failed to load patient records');
+        setError(err.message || 'Failed to load patient records');
       } finally {
         setLoading(false);
       }

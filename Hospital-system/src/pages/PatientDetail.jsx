@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import SideBar from '../functions/SideBar';
 import { ArrowLeft, User, Hash, IdCard, Calendar, Phone, MapPin } from 'lucide-react';
 import { Heart } from 'lucide-react';
+import { apiGet } from '../utils/api';
 
 const PatientDetail = () => {
   const { patientId } = useParams();
@@ -11,24 +12,17 @@ const PatientDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // API base URL
-  const API_BASE_URL = 'http://localhost:3000';
-
   // Fetch patient details
   useEffect(() => {
     const fetchPatient = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_BASE_URL}/patient/${patientId}`);
-        if (!response.ok) {
-          throw new Error('Patient not found');
-        }
-        const data = await response.json();
+        const data = await apiGet(`/patient/${patientId}`);
         setPatient(data);
         setError(null);
       } catch (err) {
         console.error('Error fetching patient:', err);
-        setError('Failed to load patient details');
+        setError(err.message || 'Failed to load patient details');
       } finally {
         setLoading(false);
       }

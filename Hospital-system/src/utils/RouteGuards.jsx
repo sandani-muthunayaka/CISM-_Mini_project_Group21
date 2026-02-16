@@ -67,6 +67,29 @@ export const GuestRoute = ({ children }) => {
   return children;
 };
 
+// Medical Staff Route Component - Only for Doctors and Nurses
+export const MedicalStaffRoute = ({ children }) => {
+  const { isAuthenticated, isMedicalStaff, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return <AuthLoader />;
+  }
+
+  if (!isAuthenticated) {
+    // Redirect to login
+    return <Navigate to="/loginScreen" state={{ from: location }} replace />;
+  }
+
+  if (!isMedicalStaff) {
+    // Redirect non-medical staff to dashboard with error message
+    alert('Access Denied: Only Doctors and Nurses can register patients.');
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
 // Public Route Component - Accessible to everyone
 export const PublicRoute = ({ children }) => {
   return children;
