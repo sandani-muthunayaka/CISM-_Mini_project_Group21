@@ -54,20 +54,14 @@ const AuditLogs = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await getAuditLogs({
+      const data = await getAuditLogs({
         ...filters,
         page: currentPage
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        setLogs(data.logs || []);
-        setTotalPages(data.pagination.totalPages);
-        setTotalCount(data.pagination.totalCount);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Failed to fetch audit logs');
-      }
+      setLogs(data.logs || []);
+      setTotalPages(data.pagination.totalPages);
+      setTotalCount(data.pagination.totalCount);
     } catch (err) {
       setError('Error fetching audit logs: ' + err.message);
     } finally {
@@ -80,13 +74,8 @@ const AuditLogs = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await getAuditStats(timeRange);
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
-      } else {
-        setError('Failed to fetch audit statistics');
-      }
+      const data = await getAuditStats(timeRange);
+      setStats(data);
     } catch (err) {
       setError('Error fetching audit statistics: ' + err.message);
     } finally {
@@ -99,13 +88,8 @@ const AuditLogs = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await getSuspiciousActivity(timeRange);
-      if (response.ok) {
-        const data = await response.json();
-        setSuspicious(data);
-      } else {
-        setError('Failed to fetch suspicious activity');
-      }
+      const data = await getSuspiciousActivity(timeRange);
+      setSuspicious(data);
     } catch (err) {
       setError('Error fetching suspicious activity: ' + err.message);
     } finally {
@@ -118,13 +102,8 @@ const AuditLogs = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await getFailedLoginAttempts(timeRange);
-      if (response.ok) {
-        const data = await response.json();
-        setFailedLogins(data);
-      } else {
-        setError('Failed to fetch failed login attempts');
-      }
+      const data = await getFailedLoginAttempts(timeRange);
+      setFailedLogins(data);
     } catch (err) {
       setError('Error fetching failed login attempts: ' + err.message);
     } finally {
