@@ -11,6 +11,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import useAuth from '../utils/useAuth';
+import useSessionMonitor from '../utils/useSessionMonitor';
 
 const staffSidebarItems = [
   { label: 'Home', path: '/dashboard', icon: <Home className="w-5 h-5 mr-2" /> },
@@ -26,6 +27,9 @@ const StaffLayout = ({ children, title = "Patient Checkup Management System" }) 
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const [activeTab, setActiveTab] = useState('/dashboard');
+
+  // Monitor session timeout
+  useSessionMonitor(true);
 
   // Update active tab based on current location
   useEffect(() => {

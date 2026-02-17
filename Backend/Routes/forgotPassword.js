@@ -4,8 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const Staff = require('../Model/staff');
-const { authenticate } = require('../Middleware/authMiddleware');
-const { requireAdmin } = require('../Middleware/rbacMiddleware');
+const { validatePasswordComplexity } = require('../Functions/passwordValidator');
 
 // Simulate DB with a JSON file for demo
 const REQUESTS_FILE = path.join(__dirname, '../Model/forgotPasswordRequests.json');
@@ -127,8 +126,20 @@ router.patch('/accept', authenticate, requireAdmin, async (req, res) => {
 			});
 		}
 
-		// Generate temporary password if not provided
-		const tempPassword = newPassword || generateTempPassword();
+		// Generate temporary password if not provided, otherwise validate
+		let tempPassword;
+		if (newPassword) {
+			// Validate provided password complexity
+			const passwordValidation = validatePasswordComplexity(newPassword);
+			if (!passwordValidation.isValid) {
+				return res.status(400).json({ 
+					message: 'Password must contain at least 12 characters including uppercase, lowercase, number and special character.'
+				});
+			}
+			tempPassword = newPassword;
+		} else {
+			tempPassword = generateTempPassword();
+		}
 		
 		// Hash the new password
 		const saltRounds = 10;
@@ -140,7 +151,9 @@ router.patch('/accept', authenticate, requireAdmin, async (req, res) => {
 			{ 
 				password: hashedPassword,
 				passwordResetAt: new Date(),
-				isPasswordTemporary: true
+				isPasswordTemporary: true,
+				failedLoginAttempts: 0,
+				accountLockedUntil: null
 			},
 			{ new: true }
 		);
@@ -267,12 +280,13 @@ router.patch('/change-password', async (req, res) => {
 			});
 		}
 
-		// Validate new password strength
-		if (newPassword.length < 6) {
+		// Validate new password complexity
+		const passwordValidation = validatePasswordComplexity(newPassword);
+		if (!passwordValidation.isValid) {
 			return res.status(400).json({ 
-				message: 'New password must be at least 6 characters long.' 
-			});
-		}
+				message: 'Password must contain at least 12 characters including uppercase, lowercase, number and special character.'
+			});}
+		
 
 		// Find user and verify current password
 		const user = await Staff.findOne({ username: username });
@@ -301,7 +315,9 @@ router.patch('/change-password', async (req, res) => {
 				password: hashedNewPassword,
 				isPasswordTemporary: false,
 				passwordResetAt: new Date(),
-				lastLoginAt: new Date()
+				lastLoginAt: new Date(),
+				failedLoginAttempts: 0,
+				accountLockedUntil: null
 			}
 		);
 
