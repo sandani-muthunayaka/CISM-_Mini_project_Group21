@@ -100,7 +100,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/SuccessfulRegistration" element={<ProtectedRoute><SuccessfulRegistration /></ProtectedRoute>} />
         
         {/* Protected Patient Records Routes */}
-        <Route path="/PatientRecords" element={<ProtectedRoute><PatientRecords /></ProtectedRoute>} />
+        <Route path="/patientRecords" element={<ProtectedRoute><PatientRecords /></ProtectedRoute>} />
         <Route path="/patient/:patientId" element={<ProtectedRoute><PatientDetail /></ProtectedRoute>} />
         <Route path="/patient/:patientId/personal" element={<ProtectedRoute><PatientDetail /></ProtectedRoute>} />
         <Route path="/patient/:patientId/opd" element={<ProtectedRoute><PatientOPDRecords /></ProtectedRoute>} />

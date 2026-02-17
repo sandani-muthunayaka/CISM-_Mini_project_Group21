@@ -111,8 +111,11 @@ async function loginStaff(req, res) {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
-    // Update last login
-    staff.lastLoginAt = new Date();
+    // Update last login and reset session activity
+    const now = new Date();
+    staff.lastLoginAt = now;
+    staff.lastActivityAt = now; // Reset session activity on login
+    staff.failedLoginAttempts = 0; // Reset failed attempts on successful login
     await staff.save();
 
     // Login successful
