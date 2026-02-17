@@ -8,7 +8,7 @@ const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MINUTES = 5; // Lock account for 5 minutes
 
 // JWT Secret - In production, this should be in environment variables
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'hospital_system_secret_key_2024';
 const JWT_EXPIRES_IN = '24h'; // Token expires in 24 hours
 
 async function loginStaff(req, res) {

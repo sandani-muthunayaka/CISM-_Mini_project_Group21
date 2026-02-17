@@ -19,13 +19,27 @@ const useAuth = () => {
       const userRole = localStorage.getItem('userRole');
       const authToken = localStorage.getItem('authToken');
 
+      console.log('🔍 useAuth checkAuthStatus:', {
+        isLoggedIn,
+        hasUserData: !!userData,
+        hasAuthToken: !!authToken,
+        userRole,
+        allLocalStorage: { ...localStorage }
+      });
+
       if (isLoggedIn === 'true' && userData && authToken) {
         const parsedUser = JSON.parse(userData);
+        console.log('✅ Authentication successful:', { username: parsedUser.username, isAdmin: parsedUser.isAdmin });
         setUser(parsedUser);
         setToken(authToken);
         setIsAuthenticated(true);
         setIsAdmin(parsedUser.isAdmin === true || userRole === 'admin');
       } else {
+        console.log('❌ Authentication failed - missing:', {
+          isLoggedIn: isLoggedIn !== 'true',
+          userData: !userData,
+          authToken: !authToken
+        });
         setIsAuthenticated(false);
         setIsAdmin(false);
         setUser(null);
@@ -42,12 +56,27 @@ const useAuth = () => {
   };
 
   const login = (userData, authToken, role = null) => {
+    console.log('🔐 Login function called with:', {
+      username: userData?.username,
+      hasToken: !!authToken,
+      tokenPreview: authToken ? `${authToken.substring(0, 20)}...` : 'none',
+      role
+    });
+    
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('user', JSON.stringify(userData));
     localStorage.setItem('authToken', authToken);
     if (role) {
       localStorage.setItem('userRole', role);
     }
+    
+    console.log('✅ LocalStorage updated. Verifying:', {
+      isLoggedIn: localStorage.getItem('isLoggedIn'),
+      hasUser: !!localStorage.getItem('user'),
+      hasAuthToken: !!localStorage.getItem('authToken'),
+      userRole: localStorage.getItem('userRole')
+    });
+    
     setUser(userData);
     setToken(authToken);
     setIsAuthenticated(true);

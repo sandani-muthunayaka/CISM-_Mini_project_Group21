@@ -67,6 +67,7 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         {/* Public Authentication Routes - Only accessible when not logged in */}
         <Route path="/" element={<GuestRoute><LoginScreen/></GuestRoute>} />
+        <Route path="/login" element={<GuestRoute><LoginScreen /></GuestRoute>} />
         <Route path="/loginScreen" element={<GuestRoute><LoginScreen /></GuestRoute>} />
         <Route path="/registerScreen" element={<GuestRoute><RegisterScreen /></GuestRoute>} />
         <Route path="/admin-login" element={<GuestRoute><AdminLogin /></GuestRoute>} />

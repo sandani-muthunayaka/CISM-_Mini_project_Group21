@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Import middleware
-const { authenticate, optionalAuth } = require('../Middleware/authMiddleware');
+const authenticate = require('../Middleware/authMiddleware');
 const { requireAdmin, canWritePatientRecords, canViewPatientRecords } = require('../Middleware/rbacMiddleware');
 const { 
   validatePatientData, 

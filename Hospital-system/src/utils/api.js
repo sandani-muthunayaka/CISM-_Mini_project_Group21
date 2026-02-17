@@ -11,7 +11,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
  * Get the JWT token from localStorage
  */
 const getToken = () => {
-  return localStorage.getItem('token');
+  return localStorage.getItem('authToken');
 };
 
 /**
@@ -25,8 +25,10 @@ export const isAuthenticated = () => {
  * Handle logout - clear all auth data
  */
 export const logout = () => {
-  localStorage.removeItem('token');
+  localStorage.removeItem('authToken');
   localStorage.removeItem('user');
+  localStorage.removeItem('isLoggedIn');
+  localStorage.removeItem('userRole');
   window.location.href = '/login';
 };
 
@@ -40,6 +42,18 @@ export const logout = () => {
  */
 export const apiRequest = async (endpoint, options = {}) => {
   const token = getToken();
+  
+  // Debug logging
+  console.log('API Request Debug:', {
+    endpoint,
+    hasToken: !!token,
+    token: token ? `${token.substring(0, 20)}...` : 'No token',
+    localStorage: {
+      authToken: localStorage.getItem('authToken') ? 'exists' : 'missing',
+      isLoggedIn: localStorage.getItem('isLoggedIn'),
+      user: localStorage.getItem('user') ? 'exists' : 'missing'
+    }
+  });
   
   // Build full URL
   const url = endpoint.startsWith('http') 
@@ -67,7 +81,11 @@ export const apiRequest = async (endpoint, options = {}) => {
     if (response.status === 401) {
       const data = await response.json().catch(() => ({}));
       
-      if (data.error === 'TOKEN_EXPIRED' || data.error === 'INVALID_TOKEN' || data.error === 'UNAUTHORIZED') {
+      console.error('401 Error received:', data);
+      
+      // Check both 'code' (backend uses this) and 'error' fields for compatibility
+      const errorCode = data.code || data.error;
+      if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || errorCode === 'UNAUTHORIZED' || errorCode === 'NO_TOKEN' || errorCode === 'SESSION_TIMEOUT') {
         console.error('Authentication error:', data.message);
         logout(); // Clear auth data and redirect to login
         throw new Error('Session expired. Please login again.');

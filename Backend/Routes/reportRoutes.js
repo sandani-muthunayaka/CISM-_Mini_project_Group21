@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate } = require('../Middleware/authMiddleware');
+const authenticate = require('../Middleware/authMiddleware');
 const { canViewPatientRecords } = require('../Middleware/rbacMiddleware');
 const generateStaffReport = require('../Functions/generateStaffReport');
 const generateBookReport = require('../Functions/generateBookReport');

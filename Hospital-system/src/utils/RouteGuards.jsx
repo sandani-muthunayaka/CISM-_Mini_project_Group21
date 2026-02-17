@@ -17,15 +17,28 @@ export const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
+  console.log('🛡️ ProtectedRoute check:', { 
+    isAuthenticated, 
+    loading, 
+    path: location.pathname,
+    localStorage: {
+      isLoggedIn: localStorage.getItem('isLoggedIn'),
+      hasUser: !!localStorage.getItem('user'),
+      hasToken: !!localStorage.getItem('authToken')
+    }
+  });
+
   if (loading) {
     return <AuthLoader />;
   }
 
   if (!isAuthenticated) {
+    console.log('❌ Not authenticated, redirecting to login');
     // Redirect to login with the current location
     return <Navigate to="/loginScreen" state={{ from: location }} replace />;
   }
 
+  console.log('✅ Authenticated, rendering protected content');
   return children;
 };
 

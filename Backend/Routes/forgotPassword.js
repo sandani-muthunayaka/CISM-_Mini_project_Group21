@@ -5,6 +5,8 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const Staff = require('../Model/staff');
 const { validatePasswordComplexity } = require('../Functions/passwordValidator');
+const authenticate = require('../Middleware/authMiddleware');
+const { requireAdmin } = require('../Middleware/rbacMiddleware');
 
 // Simulate DB with a JSON file for demo
 const REQUESTS_FILE = path.join(__dirname, '../Model/forgotPasswordRequests.json');

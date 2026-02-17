@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate } = require('../Middleware/authMiddleware');
+const authenticate = require('../Middleware/authMiddleware');
 const { canWritePatientRecords } = require('../Middleware/rbacMiddleware');
 const Notification = require('../Model/notification');
 
