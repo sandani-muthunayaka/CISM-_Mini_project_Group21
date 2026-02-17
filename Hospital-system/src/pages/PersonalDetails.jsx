@@ -40,6 +40,7 @@ const PersonalDetails = () => {
     6: {},
   });
   const [patientId, setPatientId] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
 
   // Generate unique patient ID when component mounts
   useEffect(() => {
@@ -50,6 +51,76 @@ const PersonalDetails = () => {
   const Navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(null);
 
+  // Validation functions
+  const validateName = (name) => {
+    if (!name || name.trim() === '') {
+      return 'Name is required';
+    }
+    if (!/^[a-zA-Z\s]+$/.test(name)) {
+      return 'Name should contain only letters and spaces';
+    }
+    if (name.trim().length < 2) {
+      return 'Name should be at least 2 characters';
+    }
+    return '';
+  };
+
+  const validateNIC = (nic) => {
+    if (!nic || nic.trim() === '') {
+      return 'NIC is required';
+    }
+    // Check for 12 digits or 9 digits followed by v/V or x/X
+    const nic12Pattern = /^\d{12}$/;
+    const nic9Pattern = /^\d{9}[vVxX]$/;
+    
+    if (!nic12Pattern.test(nic) && !nic9Pattern.test(nic)) {
+      return 'NIC must be 12 digits or 9 digits followed by V/X';
+    }
+    return '';
+  };
+
+  const validateAge = (age) => {
+    if (!age || age === '') {
+      return 'Age is required';
+    }
+    const ageNum = parseInt(age);
+    if (isNaN(ageNum) || ageNum <= 0) {
+      return 'Age must be a positive number';
+    }
+    if (ageNum > 150) {
+      return 'Please enter a valid age';
+    }
+    return '';
+  };
+
+  const validateGender = (gender) => {
+    if (!gender || gender === '') {
+      return 'Gender is required';
+    }
+    return '';
+  };
+
+  const validateDateOfBirth = (date) => {
+    if (!date) {
+      return 'Date of birth is required';
+    }
+    const today = new Date();
+    if (date > today) {
+      return 'Date of birth cannot be in the future';
+    }
+    return '';
+  };
+
+  const validatePhone = (phone) => {
+    // Phone is optional, only validate if provided
+    if (phone && phone.trim() !== '') {
+      if (!/^\d{10}$/.test(phone)) {
+        return 'Phone number must be exactly 10 digits';
+      }
+    }
+    return '';
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     
@@ -57,6 +128,34 @@ const PersonalDetails = () => {
       ...formData,
       [tabIndex]: { ...formData[tabIndex], [name]: value }
     });
+
+    // Validate the field
+    let error = '';
+    switch (name) {
+      case 'name':
+        error = validateName(value);
+        break;
+      case 'nic':
+        error = validateNIC(value);
+        break;
+      case 'age':
+        error = validateAge(value);
+        break;
+      case 'gender':
+        error = validateGender(value);
+        break;
+      case 'emergencyContactPhone':
+        error = validatePhone(value);
+        break;
+      default:
+        break;
+    }
+
+    // Update validation errors
+    setValidationErrors(prev => ({
+      ...prev,
+      [name]: error
+    }));
     
     // If age is manually changed, validate against date of birth
     if (name === 'age' && selectedDate) {
@@ -82,6 +181,13 @@ const PersonalDetails = () => {
       ...formData,
       [tabIndex]: { ...formData[tabIndex], dateOfBirth: date }
     });
+
+    // Validate date of birth
+    const error = validateDateOfBirth(date);
+    setValidationErrors(prev => ({
+      ...prev,
+      dateOfBirth: error
+    }));
     
     // Also update age if date is selected
     if (date) {
@@ -145,10 +251,32 @@ const PersonalDetails = () => {
       6: {},
     });
     setSelectedDate(null);
+    setValidationErrors({});
     alert('Form cleared successfully!');
   };
 
   const handleNext = async () => {
+    // Validate all required fields
+    const errors = {};
+    errors.name = validateName(formData[tabIndex].name);
+    errors.nic = validateNIC(formData[tabIndex].nic);
+    errors.age = validateAge(formData[tabIndex].age);
+    errors.gender = validateGender(formData[tabIndex].gender);
+    errors.dateOfBirth = validateDateOfBirth(selectedDate);
+    // Only validate phone if provided
+    if (formData[tabIndex].emergencyContactPhone) {
+      errors.emergencyContactPhone = validatePhone(formData[tabIndex].emergencyContactPhone);
+    }
+
+    // Filter out empty errors
+    const hasErrors = Object.values(errors).some(error => error !== '');
+    
+    if (hasErrors) {
+      setValidationErrors(errors);
+      alert('Please fix all validation errors before proceeding');
+      return;
+    }
+
     // Basic validation - check if required fields are filled
     const requiredFields = ['name', 'nic', 'age', 'gender'];
     const missingFields = requiredFields.filter(field => !formData[tabIndex][field]);
@@ -235,8 +363,11 @@ const PersonalDetails = () => {
                           value={formData[tabIndex].name || ''}
                           onChange={handleChange}
                           placeholder="Enter full name"
-                          className="w-full p-3 text-gray-700 rounded-lg border border-gray-300 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                          className={`w-full p-3 text-gray-700 rounded-lg border ${validationErrors.name ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-200'} outline-none focus:ring-2 transition-all`}
                         />
+                        {validationErrors.name && (
+                          <span className="text-red-500 text-sm">{validationErrors.name}</span>
+                        )}
                       </div>
                       {/* NIC */}
                       <div className="flex flex-col space-y-2">
@@ -249,8 +380,11 @@ const PersonalDetails = () => {
                           value={formData[tabIndex].nic || ''}
                           onChange={handleChange}
                           placeholder="NIC no."
-                          className="w-full p-3 text-gray-700 rounded-lg border border-gray-300 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                          className={`w-full p-3 text-gray-700 rounded-lg border ${validationErrors.nic ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-200'} outline-none focus:ring-2 transition-all`}
                         />
+                        {validationErrors.nic && (
+                          <span className="text-red-500 text-sm">{validationErrors.nic}</span>
+                        )}
                       </div>
                       {/* Age */}
                       <div className="flex flex-col space-y-2">
@@ -263,8 +397,11 @@ const PersonalDetails = () => {
                           value={formData[tabIndex].age || ''}
                           onChange={handleChange}
                           placeholder="Enter age"
-                          className="w-full p-3 text-gray-700 rounded-lg border border-gray-300 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                          className={`w-full p-3 text-gray-700 rounded-lg border ${validationErrors.age ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-200'} outline-none focus:ring-2 transition-all`}
                         />
+                        {validationErrors.age && (
+                          <span className="text-red-500 text-sm">{validationErrors.age}</span>
+                        )}
                       </div>
                       {/* DOB */}
                       <div className="flex flex-col space-y-2">
@@ -280,11 +417,14 @@ const PersonalDetails = () => {
                             scrollableYearDropdown
                             yearDropdownItemNumber={50}
                             showMonthDropdown
-                            className="w-full p-3 pl-10 text-gray-700 rounded-lg border border-gray-300 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                            className={`w-full p-3 pl-10 text-gray-700 rounded-lg border ${validationErrors.dateOfBirth ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-200'} outline-none focus:ring-2 transition-all`}
                             placeholderText="Select Date"
                           />
                           <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                         </div>
+                        {validationErrors.dateOfBirth && (
+                          <span className="text-red-500 text-sm">{validationErrors.dateOfBirth}</span>
+                        )}
                       </div>
                       {/* Gender */}
                       <div className="flex flex-col space-y-2">
@@ -295,12 +435,15 @@ const PersonalDetails = () => {
                           name="gender"
                           value={formData[tabIndex].gender || ''}
                           onChange={handleChange}
-                          className="w-full p-3 text-gray-700 rounded-lg border border-gray-300 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                          className={`w-full p-3 text-gray-700 rounded-lg border ${validationErrors.gender ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-200'} outline-none focus:ring-2 transition-all`}
                         >
                           <option value="">Select Gender</option>
                           <option value="male">Male</option>
                           <option value="female">Female</option>
                         </select>
+                        {validationErrors.gender && (
+                          <span className="text-red-500 text-sm">{validationErrors.gender}</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -342,16 +485,20 @@ const PersonalDetails = () => {
                       {/* Phone Number */}
                       <div className="flex flex-col space-y-2">
                         <label className="text-sm font-medium text-gray-600 flex items-center gap-1">
-                          <Phone className="w-4 h-4 text-blue-600" /> Phone Number:
+                          <Phone className="w-4 h-4 text-blue-600" /> Phone Number: <span className="text-gray-400 text-xs">(Optional)</span>
                         </label>
                         <input
                           type="tel"
                           name="emergencyContactPhone"
                           value={formData[tabIndex].emergencyContactPhone || ''}
                           onChange={handleChange}
-                          placeholder="Telephone number"
-                          className="w-full p-3 text-gray-700 rounded-lg border border-gray-300 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                          placeholder="Telephone number (10 digits)"
+                          maxLength="10"
+                          className={`w-full p-3 text-gray-700 rounded-lg border ${validationErrors.emergencyContactPhone ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-200'} outline-none focus:ring-2 transition-all`}
                         />
+                        {validationErrors.emergencyContactPhone && (
+                          <span className="text-red-500 text-sm">{validationErrors.emergencyContactPhone}</span>
+                        )}
                       </div>
                       {/* Emergency Contact Gender */}
                       <div className="flex flex-col space-y-2">
