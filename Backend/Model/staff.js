@@ -14,6 +14,9 @@ const staffSchema = new mongoose.Schema({
   lastActivityAt: { type: Date },
   failedLoginAttempts: { type: Number, default: 0 },
   accountLockedUntil: { type: Date, default: null }
+}, {
+  strict: true,        // Reject fields not in schema (NoSQL injection prevention)
+  strictQuery: true    // Apply strict mode to query filters
 });
 
 // Prevent OverwriteModelError

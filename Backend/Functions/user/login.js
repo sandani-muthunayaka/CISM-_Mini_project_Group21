@@ -20,8 +20,18 @@ async function loginStaff(req, res) {
       return res.status(400).json({ message: 'Username and password are required.' });
     }
 
+    // NoSQL Injection Prevention: Validate that username and password are strings, not objects
+    if (typeof username !== 'string' || typeof password !== 'string') {
+      console.warn(`[SECURITY] Type validation failed - username or password is not a string`);
+      console.warn(`[SECURITY] Request from IP: ${req.ip}`);
+      return res.status(400).json({ 
+        message: 'Invalid username or password format.',
+        error: 'VALIDATION_ERROR'
+      });
+    }
+
     // Find staff by username
-    const staff = await Staff.findOne({ username });
+    const staff = await Staff.findOne({ username: username.trim() });
     if (!staff) {
       return res.status(401).json({ message: 'Invalid username or password.' });
     }

@@ -90,7 +90,9 @@ const auditLogSchema = new mongoose.Schema({
     index: true
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  strict: true,        // Reject fields not in schema (NoSQL injection prevention)
+  strictQuery: true    // Apply strict mode to query filters
 });
 
 // Indexes for efficient queries

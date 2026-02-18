@@ -1,10 +1,10 @@
 /**
  * Session Management - Handles JWT tokens and session timeouts
  * Features:
- * - Generate JWT tokens with 5-minute expiry
+ * - Generate JWT tokens with 24-hour expiry
  * - Track last activity timestamp
  * - Validate session based on inactivity
- * - Auto-logout after 5 minutes of inactivity
+ * - Auto-logout after 30 minutes of inactivity
  */
 
 const jwt = require('jsonwebtoken');
@@ -12,8 +12,8 @@ const Staff = require('../Model/staff');
 
 // Session configuration
 const SESSION_CONFIG = {
-  TOKEN_EXPIRY: '1m', // Token expires in 5 minutes
-  INACTIVITY_TIMEOUT: 1 * 60 * 1000, // 5 minutes in milliseconds
+  TOKEN_EXPIRY: '24h', // Token expires in 24 hours
+  INACTIVITY_TIMEOUT: 30 * 60 * 1000, // 30 minutes in milliseconds
   SECRET_KEY: process.env.JWT_SECRET || 'hospital_system_secret_key_2024' // Change this in production
 };
 
