@@ -18,7 +18,8 @@ const PatientRecords = () => {
       try {
         setLoading(true);
         const data = await apiGet('/patients');
-        setPatients(data);
+        // API returns {count, isFiltered, patients: [...]}
+        setPatients(Array.isArray(data) ? data : (data.patients || []));
         setError(null);
       } catch (err) {
         console.error('Error fetching patients:', err);
