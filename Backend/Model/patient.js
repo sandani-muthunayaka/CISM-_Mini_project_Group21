@@ -16,6 +16,9 @@ const patientSchema = new mongoose.Schema({
       date: String
     }
   ]
+}, {
+  strict: true,        // Reject fields not in schema (NoSQL injection prevention)
+  strictQuery: true    // Apply strict mode to query filters
 });
 
 module.exports = mongoose.models.Patient || mongoose.model('Patient', patientSchema, 'patients');

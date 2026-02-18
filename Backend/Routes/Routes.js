@@ -11,6 +11,12 @@ const {
   createRateLimiter 
 } = require('../Middleware/validationMiddleware');
 
+const { 
+  verifyPatientOwnership, 
+  filterOwnedPatients, 
+  verifyWriteAccess 
+} = require('../Middleware/ownershipMiddleware');
+
 // Apply rate limiting globally
 const rateLimiter = createRateLimiter();
 router.use(rateLimiter);
@@ -33,31 +39,32 @@ const registerStaff = require('../Functions/user/registerStaff');
 router.post('/register', validateStaffData, registerStaff);
 
 // ========== PROTECTED ROUTES (Authentication Required) ==========
-
-// Patient routes - require authentication
 const savePatient = require('../Functions/user/savePatient');
 router.post('/patient/save', authenticate, canWritePatientRecords, validatePatientData, savePatient);
 
 const getPatient = require('../Functions/user/getPatient');
-router.get('/patient/:patientId', authenticate, canViewPatientRecords, getPatient);
+router.get('/patient/:patientId', authenticate, canViewPatientRecords, verifyPatientOwnership, getPatient);
 
 const getAllPatients = require('../Functions/user/getAllPatients');
-router.get('/patients', authenticate, canViewPatientRecords, getAllPatients);
+router.get('/patients', authenticate, canViewPatientRecords, filterOwnedPatients, getAllPatients);
 
-// Medication routes - require authentication and role-based access
+// Medication routes - require authentication, role-based access, and ownership
 const medicationRoutes = require('./medication');
 router.use('/patient', authenticate, medicationRoutes);
 
-// Hospitalization routes - require authentication and role-based access
+// Hospitalization routes - require authentication, role-based access, and ownership
 const hospitalizationRoutes = require('./hospitalization');
 router.use('/patient', authenticate, hospitalizationRoutes);
 
-// OPD routes - require authentication and role-based access
+// OPD routes - require authentication, role-based access, and ownership
 const opdRoutes = require('./opd');
 router.use('/patient', authenticate, opdRoutes);
 
-// ========== ADMIN ROUTES (Admin Authentication Required) ==========
+// Patient Assignment routes - IDOR prevention (ownership tracking)
+const patientAssignmentRoutes = require('./patientAssignmentRoutes');
+router.use('/assignments', authenticate, patientAssignmentRoutes);
 
+// ========== ADMIN ROUTES (Admin Authentication Required) ==========
 // Admin staff management routes - require admin privileges
 const staffManagement = require('../Functions/admin/staffManagement');
 router.get('/admin/staff', authenticate, requireAdmin, staffManagement.getAllStaff);
