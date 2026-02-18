@@ -1,8 +1,11 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import SideBar from '../functions/SideBar';
-import { ArrowLeft, FileText, Building2, Calendar, User } from 'lucide-react';
-
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import SideBar from "../functions/SideBar";
+import { ArrowLeft, FileText, Building2, Calendar, User } from "lucide-react";
+import {
+  addHospitalizationRecord,
+  getHospitalizationRecords,
+} from "../services/hospitalization/Hospitalization";
 
 const PatientHospitalization = () => {
   const { patientId } = useParams();
@@ -12,49 +15,48 @@ const PatientHospitalization = () => {
   const [error, setError] = React.useState("");
   const [form, setForm] = React.useState({
     date: new Date().toLocaleDateString(),
-    ward: "Base Hospital - Avissawella",
+    hospitalName: "Base Hospital - Avissawella",
     diagnosis: "",
-    followUp: ""
+    referral: "",
   });
 
-  React.useEffect(() => {
+  const fetchRecords = async () => {
     if (patientId) {
       setLoading(true);
-      fetch(`http://localhost:3000/patient/${patientId}/hospitalization`)
-        .then(res => res.json())
-        .then(data => {
-          setRecords(data || []);
-          setError("");
-        })
+      getHospitalizationRecords(patientId)
+        .then((data) => setRecords(data))
         .catch(() => setError("Failed to fetch hospitalization records"))
         .finally(() => setLoading(false));
+
+      console.log("Data: ", records);
     }
+  };
+
+  React.useEffect(() => {
+    fetchRecords();
   }, [patientId]);
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newRecord = { ...form };
-    const res = await fetch(`http://localhost:3000/patient/${patientId}/hospitalization`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newRecord)
-    });
-    if (res.ok) {
+    const res = await addHospitalizationRecord(newRecord, patientId);
+    if (res) {
       try {
-        const updatedList = await res.json();
-        setRecords(updatedList);
+        await fetchRecords();
         setForm({
           date: new Date().toLocaleDateString(),
-          ward: "Base Hospital - Avissawella",
+          hospitalName: "Base Hospital - Avissawella",
           diagnosis: "",
-          followUp: ""
+          referral: "",
         });
       } catch {
-        alert("Record saved, but could not update history from server response.");
+        alert(
+          "Record saved, but could not update history from server response.",
+        );
       }
     } else {
       let errorMsg = "Failed to save record. Please try again.";
@@ -80,7 +82,9 @@ const PatientHospitalization = () => {
               Back
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">Hospitalization Records</h1>
+              <h1 className="text-2xl font-bold text-gray-800">
+                Hospitalization Records
+              </h1>
               <p className="text-gray-600">Patient ID: {patientId}</p>
             </div>
           </div>
@@ -90,13 +94,16 @@ const PatientHospitalization = () => {
           <div>
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <Building2 className="w-6 h-6 text-blue-600" /> Add Hospitalization
+                <Building2 className="w-6 h-6 text-blue-600" /> Add
+                Hospitalization
               </h2>
               <form className="space-y-4" onSubmit={handleSubmit}>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-blue-600" />
-                    <label className="text-sm font-medium text-gray-700">Date:</label>
+                    <label className="text-sm font-medium text-gray-700">
+                      Date:
+                    </label>
                   </div>
                   <input
                     type="text"
@@ -109,27 +116,43 @@ const PatientHospitalization = () => {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-blue-600" />
-                    <label className="text-sm font-medium text-gray-700">Hospital Name:</label>
+                    <label className="text-sm font-medium text-gray-700">
+                      Hospital Name:
+                    </label>
                   </div>
                   <select
-                    name="ward"
-                    value={form.ward}
+                    name="hospitalName"
+                    value={form.hospitalName}
                     onChange={handleChange}
                     required
                     className="w-full p-3 rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
                   >
-                    <option value="Base Hospital - Rathnapura">General Hospital - Colombo</option>
-                    <option value="Base Hospital - Avissawella">Base Hospital - Avissawella</option>
-                    <option value="Base Hospital - Karawanella">Base Hospital - Karawanella</option>
-                    <option value="Base Hospital - Colombo">Base Hospital - Colombo</option>
-                    <option value="Base Hospital - Rathnapura">Base Hospital - Rathnapura</option>
-                    <option value="Base Hospital - Rathnapura">Base Hospital - Kegalle</option>
+                    <option value="Base Hospital - Rathnapura">
+                      General Hospital - Colombo
+                    </option>
+                    <option value="Base Hospital - Avissawella">
+                      Base Hospital - Avissawella
+                    </option>
+                    <option value="Base Hospital - Karawanella">
+                      Base Hospital - Karawanella
+                    </option>
+                    <option value="Base Hospital - Colombo">
+                      Base Hospital - Colombo
+                    </option>
+                    <option value="Base Hospital - Rathnapura">
+                      Base Hospital - Rathnapura
+                    </option>
+                    <option value="Base Hospital - Rathnapura">
+                      Base Hospital - Kegalle
+                    </option>
                   </select>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <FileText className="w-4 h-4 text-blue-600" />
-                    <label className="text-sm font-medium text-gray-700">Diagnosis:</label>
+                    <label className="text-sm font-medium text-gray-700">
+                      Diagnosis:
+                    </label>
                   </div>
                   <input
                     type="text"
@@ -143,12 +166,14 @@ const PatientHospitalization = () => {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4 text-blue-600" />
-                    <label className="text-sm font-medium text-gray-700">Back Referral/Follow Up:</label>
+                    <label className="text-sm font-medium text-gray-700">
+                      Back Referral/Follow Up:
+                    </label>
                   </div>
                   <input
                     type="text"
-                    name="followUp"
-                    value={form.followUp}
+                    name="referral"
+                    value={form.referral}
                     onChange={handleChange}
                     className="w-full p-3 rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
                   />
@@ -168,7 +193,8 @@ const PatientHospitalization = () => {
           <div>
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <FileText className="w-6 h-6 text-blue-600" /> Hospitalization History
+                <FileText className="w-6 h-6 text-blue-600" /> Hospitalization
+                History
               </h2>
               <div className="overflow-y-auto max-h-[70vh]">
                 {loading ? (
@@ -176,15 +202,28 @@ const PatientHospitalization = () => {
                 ) : error ? (
                   <div className="text-center py-12 text-red-500">{error}</div>
                 ) : records.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">No hospitalization records found.</div>
+                  <div className="text-center py-12 text-gray-500">
+                    No hospitalization records found.
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     {records.map((rec, idx) => (
-                      <div key={idx} className="border rounded-lg p-4 bg-gray-50">
-                        <div className="font-semibold text-gray-800">Date: {rec.date}</div>
-                        <div className="text-gray-700">Hospital: {rec.ward}</div>
-                        <div className="text-gray-700">Diagnosis: {rec.diagnosis}</div>
-                        <div className="text-gray-700">Back Referral/Follow Up: {rec.followUp}</div>
+                      <div
+                        key={idx}
+                        className="border rounded-lg p-4 bg-gray-50"
+                      >
+                        <div className="font-semibold text-gray-800">
+                          Date: {rec.date}
+                        </div>
+                        <div className="text-gray-700">
+                          Hospital: {rec.hospitalName}
+                        </div>
+                        <div className="text-gray-700">
+                          Diagnosis: {rec.diagnosis}
+                        </div>
+                        <div className="text-gray-700">
+                          Back Referral/Follow Up: {rec.referral}
+                        </div>
                       </div>
                     ))}
                   </div>
