@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const staffSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
+  username: { type: String, required: true },
   employee_number: { type: String, required: true, unique: true },
   position: { type: String, required: true },
   status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
@@ -13,9 +13,10 @@ const staffSchema = new mongoose.Schema({
   lastLoginAt: { type: Date },
   lastActivityAt: { type: Date },
   failedLoginAttempts: { type: Number, default: 0 },
-  accountLockedUntil: { type: Date, default: null },
-  email: { type: String, required: false, unique: true },
-  temporyPasswordGeneratedAt: { type: Date, default: null },
+  accountLockedUntil: { type: Date, default: null }
+}, {
+  strict: true,        // Reject fields not in schema (NoSQL injection prevention)
+  strictQuery: true    // Apply strict mode to query filters
 });
 
 // Prevent OverwriteModelError

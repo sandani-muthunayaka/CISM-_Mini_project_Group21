@@ -4,8 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const Staff = require('../Model/staff');
-const transporter = require('../Utils/email');
-const generatePDF = require('../Utils/pdfGenerator');
 const { validatePasswordComplexity } = require('../Functions/passwordValidator');
 const authenticate = require('../Middleware/authMiddleware');
 const { requireAdmin } = require('../Middleware/rbacMiddleware');
@@ -149,8 +147,6 @@ router.patch('/accept', authenticate, requireAdmin, async (req, res) => {
 		const saltRounds = 10;
 		const hashedPassword = await bcrypt.hash(tempPassword, saltRounds);
 
-		const expiryTime = new Date(Date.now() + 12 * 60 * 60 * 1000);
-
 		// Update user's password in database
 		const updateResult = await Staff.findOneAndUpdate(
 			{ username: username },
@@ -170,50 +166,21 @@ router.patch('/accept', authenticate, requireAdmin, async (req, res) => {
 			});
 		}
 
-		const pdfPath = await generatePDF(
-            username,
-            updateResult.employee_number,
-            tempPassword
-        );
+		// Update request status
+		requests[requestIndex] = {
+			...requests[requestIndex],
+			status: 'accepted',
+			acceptedAt: new Date(),
+			tempPassword: tempPassword, // Store for admin reference
+			passwordResetBy: 'admin' // Track who reset it
+		};
 
-		await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: updateResult.email,
-            subject: 'Password Reset Approved - Temporary Password',
-            text: `
-Dear ${username},
-
-Your password reset request has been approved.
-
-Your temporary password is attached in a password-protected PDF.
-
-PDF Password: username + employeeNo
-
-⚠ IMPORTANT:
-This temporary password will expire in 12 hours.
-Please login and change your password immediately.
-
-Regards,
-System Administrator
-`,
-            attachments: [
-                {
-                    filename: 'TemporaryPassword.pdf',
-                    path: pdfPath
-                }
-            ]
-        });
-
-		setTimeout(() => {
-            if (fs.existsSync(pdfPath)) {
-                fs.unlinkSync(pdfPath);
-            }
-        }, 60000);
+		writeRequests(requests);
 
 		res.json({ 
 			message: 'Password reset request accepted successfully.',
 			username: username,
-			// tempPassword: encryptedTempPword,
+			tempPassword: tempPassword,
 			instruction: 'User should login with this temporary password and change it immediately.'
 		});
 
