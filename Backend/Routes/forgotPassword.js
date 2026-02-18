@@ -166,16 +166,6 @@ router.patch('/accept', authenticate, requireAdmin, async (req, res) => {
 			});
 		}
 
-		// Update request status
-		requests[requestIndex] = {
-			...requests[requestIndex],
-			status: 'accepted',
-			acceptedAt: new Date(),
-			tempPassword: tempPassword, // Store for admin reference
-			passwordResetBy: 'admin' // Track who reset it
-		};
-
-		writeRequests(requests);
 
 		res.json({ 
 			message: 'Password reset request accepted successfully.',
