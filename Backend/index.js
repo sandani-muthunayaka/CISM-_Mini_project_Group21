@@ -7,6 +7,7 @@ const forgotPasswordRouter = require('./Routes/forgotPassword');
 const sessionRoutes = require('./Routes/sessionRoutes');
 const opdRecordRoutes = require('./Routes/opdRecordsRoutes');
 const hospitalizationRecordRoutes = require('./Routes/hospitalizationRecordsRoutes');
+const medicationRecordRoutes = require('./Routes/medicationRecordsRoutes');
 const staffRoutes = require('./Routes/staffRoutes');
 const app=express()
 const cors = require('cors');
@@ -22,6 +23,7 @@ app.use('/session', sessionRoutes);
 app.use('/opd-records', opdRecordRoutes);
 app.use('/staff', staffRoutes);
 app.use('/hospitalization-records', hospitalizationRecordRoutes);
+app.use('/medication-records', medicationRecordRoutes)
 
 connectDB()
 
