@@ -6,6 +6,10 @@ const reportRoutes = require('./Routes/reportRoutes');
 const forgotPasswordRouter = require('./Routes/forgotPassword');
 const sessionRoutes = require('./Routes/sessionRoutes');
 const mongoSanitize = require('express-mongo-sanitize');
+const opdRoutes = require('./Routes/opdRecordsRoutes');
+const hospitalizationRoutes = require('./Routes/hospitalizationRecordsRoutes');
+const medicationRoutes = require('./Routes/medicationRecordsRoutes');
+const staffRoutes = require('./Routes/staffRoutes');
 const app=express()
 const cors = require('cors');
 
@@ -19,13 +23,26 @@ app.use(cors());
 // ============================================
 // express-mongo-sanitize: Removes MongoDB operators from user input
 // Prevents attacks like: {"username": {"$ne": null}}
-app.use(mongoSanitize({
-  replaceWith: '_',  // Replace $ with _ to neutralize operators
-  onSanitize: ({ req, key }) => {
-    console.warn(`[SECURITY] NoSQL injection attempt detected and blocked`);
-    console.warn(`[SECURITY] Suspicious key: ${key}, IP: ${req.ip}`);
-  }
-}));
+app.use((req, res, next) => {
+    const sanitize = (obj) => {
+        if (!obj) return;
+
+        Object.keys(obj).forEach(key => {
+            if (key.startsWith('$') || key.includes('.')) {
+                delete obj[key];
+            } else if (typeof obj[key] === 'object') {
+                sanitize(obj[key]);
+            }
+        });
+    };
+
+    sanitize(req.body);
+    sanitize(req.params);
+    sanitize(req.query);
+
+    next();
+});
+
 
 // Additional validation: Block requests with object values in body
 app.use((req, res, next) => {
@@ -52,6 +69,10 @@ app.use('/notifications', notificationRoutes);
 app.use('/reports', reportRoutes);
 app.use('/forgot-password', forgotPasswordRouter);
 app.use('/session', sessionRoutes);
+app.use('/opd-records', opdRoutes);
+app.use('/hospitalization-records', hospitalizationRoutes);
+app.use('/medication-records', medicationRoutes);
+app.use('/staff', staffRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
