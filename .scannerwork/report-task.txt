@@ -1,0 +1,6 @@
+projectKey=PCMS
+serverUrl=http://localhost:9000
+serverVersion=26.2.0.119303
+dashboardUrl=http://localhost:9000/dashboard?id=PCMS
+ceTaskId=20c84660-6530-49fe-8ddb-1df583f3835f
+ceTaskUrl=http://localhost:9000/api/ce/task?id=20c84660-6530-49fe-8ddb-1df583f3835f
